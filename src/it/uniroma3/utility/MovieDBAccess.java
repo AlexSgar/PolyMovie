@@ -13,8 +13,7 @@ public class MovieDBAccess {
 
 
 	public  JSONObject getMovie(String idMovie) throws Exception {
-		String tag="/movie/";
-		tag.concat(idMovie);
+		String tag="/movie/"+idMovie;
 		String request= url+tag+apiKey;
 		JSONObject movieJson = readJsonFromUrl(request);
 		System.out.println(movieJson.toString());
