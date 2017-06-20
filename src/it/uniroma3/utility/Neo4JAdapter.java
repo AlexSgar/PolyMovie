@@ -16,7 +16,7 @@ import org.neo4j.driver.v1.*;
 
 import  static org.neo4j.driver.v1.Values.parameters;
 
-public class Neo4JPlug {
+public class Neo4JAdapter {
 
 
 	public static void main(String[] args) throws IOException, JSONException, InterruptedException {
@@ -37,7 +37,7 @@ public class Neo4JPlug {
 			JSONArray related = mvAd.getMovieReccomandations(idToAsk);
 			JSONArray reviews = mvAd.getMovieReview(idToAsk);
 
-			session.run( "CREATE (a:Movie {id: {id}, title: {title}, original_title: {original},"
+			session.run( "MERGE (a:Movie {id: {id}, title: {title}, original_title: {original},"
 					+ " original_language: {original_language}})",
 					parameters( "id", currMovie.getId(), "title",
 							currMovie.getTitle(),"original",currMovie.getOriginal_title(),"original_language",
@@ -65,8 +65,8 @@ public class Neo4JPlug {
 								movieRelated.getOriginal_language()));
 			}
 
-
-			if(i==100){
+			
+			if(i==1000){
 				break;
 			}
 			}catch(Exception e){System.out.println("malformattato riga i: "+i);}
