@@ -22,6 +22,7 @@ public class Neo4JAdapter {
 	public static void main(String[] args) throws IOException, JSONException, InterruptedException {
 		Driver driver = GraphDatabase.driver( "bolt://localhost:7687", AuthTokens.basic( "neo4j", "root" ) );
 		Session session = driver.session();
+		
 
 		MovieAdapter mvAd= new MovieAdapter();
 		FileReader input = new FileReader("ml-latest/links.csv");
@@ -37,39 +38,36 @@ public class Neo4JAdapter {
 			JSONArray related = mvAd.getMovieReccomandations(idToAsk);
 			JSONArray reviews = mvAd.getMovieReview(idToAsk);
 
-			session.run( "MERGE (a:Movie {id: {id}, title: {title}, original_title: {original},"
-					+ " original_language: {original_language}})",
-					parameters( "id", currMovie.getId(), "title",
-							currMovie.getTitle(),"original",currMovie.getOriginal_title(),"original_language",
-							currMovie.getOriginal_language()));
+			session.run( "MERGE (a:Movie {id_movie: {id}})",
+					parameters( "id", currMovie.getId()));
 
 			for(int j=0; j<reviews.length(); j++){
 				JSONObject currRev = reviews.getJSONObject(j);
-				String author = currRev.getString("author");
+				String user = currRev.getString("author");
 				String idReview = currRev.getString("id");
 				String reviewContent = currRev.getString("content");
-				session.run( "MATCH (a:Movie) WHERE a.id={id} MERGE (u:User {nickname: {name}}) "
-						+ " CREATE (r:Review {id: {idR}, content: {content}}),"
+				session.run( "MATCH (a:Movie) WHERE a.id_movie={id} MERGE (u:User {nick: {name}}) "
+						+ " CREATE (r:Review {id_review: {idR}, id_movie:{idM}, content: {content}}),"
 						+ "(a)-[:HASREVIEW]->(r), (r)-[:WRITTENBY]->(u)",
-						parameters( "name", author,"idR", idReview,"content",reviewContent,"id",idToAsk));
+						parameters( "name", user,"idR",idReview, "idM",idToAsk,"content",reviewContent,"id",idToAsk));
 			}
-
 			
-			for(int j=0; j<related.length() && j<5; j++){
+			
+			for(int j=0; j<related.length() && j<5; j++){// da togliere il 5
 				Movie movieRelated= new Movie(related.getJSONObject(j));
-				session.run( "MATCH (a:Movie) WHERE a.id={idA}"
-						+ " MERGE (m:Movie {id: {id}, title: {title}, original_title: {original},original_language: {original_language}})"
+				session.run( "MATCH (a:Movie) WHERE a.id_movie={idA}"
+						+ " MERGE (m:Movie {id_movie: {id}})"
 						+ "CREATE (a)-[:RELATED]->(m)",
-						parameters("idA",idToAsk,"id", movieRelated.getId(), "title",
-								movieRelated.getTitle(),"original",movieRelated.getOriginal_title(),"original_language",
-								movieRelated.getOriginal_language()));
+						parameters("idA",idToAsk,"id", movieRelated.getId()));
 			}
 
 			
 			if(i==1000){
 				break;
 			}
-			}catch(Exception e){System.out.println("malformattato riga i: "+i);}
+			}catch(Exception e){
+				e.printStackTrace();
+				System.out.println("malformattato riga i: "+i);}
 		}
 
 
