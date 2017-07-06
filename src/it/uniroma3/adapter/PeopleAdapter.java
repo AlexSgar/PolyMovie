@@ -4,7 +4,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import it.uniroma3.utility.TMDBClient;
 
 public class PeopleAdapter extends Adapter {
 	private String resourcePath="/person/";
