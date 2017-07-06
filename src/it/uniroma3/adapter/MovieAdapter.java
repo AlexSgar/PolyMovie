@@ -7,14 +7,11 @@ import org.json.JSONObject;
 import it.uniroma3.model.Movie;
 import it.uniroma3.utility.TMDBClient;
 
-public class MovieAdapter {
-	private TMDBClient client;
+public class MovieAdapter  extends Adapter{
 	private String resourcePath="/movie/";
-	private int request;
 
 	public MovieAdapter(){
-		this.client= new TMDBClient();
-		this.request=0;
+		super();
 	}
 
 	public Movie getMovieDetails(String idMovie){
@@ -22,7 +19,6 @@ public class MovieAdapter {
 		String url= resourcePath+idMovie;
 		JSONObject movieJson = this.client.get(url);
 		return new Movie(movieJson);
-
 	}
 
 
@@ -37,7 +33,6 @@ public class MovieAdapter {
 			e.printStackTrace();}
 		return reviews;
 	}
-	
 	
 
 	public JSONArray getMovieCredits(String idMovie){
@@ -65,17 +60,5 @@ public class MovieAdapter {
 		return reviews;
 	}
 	
-
-	private void checkRequestRate() {
-		this.request++;
-		if(request==15){
-			request=0;
-			try {
-				System.out.println("pausa richieste ... ");
-				Thread.sleep(3000);
-			} catch (InterruptedException e) {e.printStackTrace();}
-		}
-
-	}
 
 }
