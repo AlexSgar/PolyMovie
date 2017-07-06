@@ -13,7 +13,7 @@
 
 # Maven
 log/
-target/
+target/*
 
 #our
 ml-latest/
