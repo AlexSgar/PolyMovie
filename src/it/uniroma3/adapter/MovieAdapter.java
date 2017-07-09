@@ -20,7 +20,7 @@ public class MovieAdapter  extends Adapter{
 	}
 	
 	public JSONObject getMovieKeywords(String idMovie){
-		checkRequestRate();
+		checkRequestRateAlex();
 		String url = resourcePath + idMovie +"/keywords";
 		JSONObject movieKeywords = this.client.get(url);
 		return movieKeywords;

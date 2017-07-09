@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -34,24 +35,33 @@ public class MongoDBAdapter{
 	public static void main(String[] args) throws IOException{
 		
 		MongoDBAdapter mongoDBAdapter = new MongoDBAdapter();
-		mongoDBAdapter.deleteCollection();
-		mongoDBAdapter.populateMovies();
-		//mongoDBAdapter.populateMovieKeywords();
+		//mongoDBAdapter.deleteCollection();
+		//mongoDBAdapter.populateMovies();
+		mongoDBAdapter.populateMovieKeywords();
 		//mongoDBAdapter.printElements();
 		
 	}
 	
 	public void populateMovies() throws IOException{
 	
-		int nOfEntryes = 21;
+		long startTime = System.currentTimeMillis();
+		System.out.println("started at: "+new Date(startTime));
+		
+		int nOfEntryes = 2000;
+		int nOfInserts = 19;
+		int nOfLinesToSkip = 0;
 		MongoCollection<Document> movies = this.mongoDatabase.getCollection("movies");
 		
-		BufferedReader br = new BufferedReader(new FileReader("ml-latest/links.csv"));
+		BufferedReader br = new BufferedReader(new FileReader("ml-latest/links_clear.csv"));
 		String currentLine = "";
 		List<Document> moviesToAdd = new LinkedList<Document>();
-		br.readLine();
 		int i=0;
-		JSONObject movieJson = new JSONObject();
+		JSONObject movieJson = null;
+		
+		while(nOfLinesToSkip >0){
+			br.readLine();
+			nOfLinesToSkip--;
+		}
 		
 		while((currentLine = br.readLine()) != null){
 			
@@ -59,29 +69,39 @@ public class MongoDBAdapter{
 				String movieId = currentLine.split(",")[2];
 				
 				movieJson = this.movieAdapter.getMovie(movieId);
-				System.out.println("movie id: "+ movieJson.getString("id")+" title:"+ movieJson.getString("title"));
-				
-				moviesToAdd.add(Document.parse(movieJson.toString()));
-				i++;
-				
-				if(moviesToAdd.size() == 20){
-					movies.insertMany(moviesToAdd);
-					moviesToAdd = new LinkedList<Document>();
-					System.out.println("inserisco 20 entryes,totali " + i);
+				//System.out.println("movie id: "+ movieJson.getString("id")+" title:"+ movieJson.getString("title"));
+				if(movieJson!=null){
+					
+					movieJson.remove("id");
+					moviesToAdd.add(Document.parse(movieJson.toString()).append("_id", movieId));
+					i++;
+					
+					if(moviesToAdd.size() == nOfInserts){
+						movies.insertMany(moviesToAdd);
+						moviesToAdd = new LinkedList<Document>();
+						System.out.println("inserisco "+nOfInserts+" entryes,totali " + i);
+					}
+					
+					if(nOfEntryes == i){
+						break;
+					}
 				}
-				
-				if(nOfEntryes == i){
-					break;
+				else{
+					System.out.println("Error movieJson null,id: "+ movieId);
 				}
 			}
 			catch(ArrayIndexOutOfBoundsException e ){
 				System.out.println("failed parse moviedid at "+i);
 				e.printStackTrace();
-			} catch (JSONException e) {
+			}
+			catch(Exception e){
+				e.printStackTrace();
+			}
+				/* catch (JSONException e) { 
 				System.out.println("failed parse json movie at "+i);
 				System.out.println("json movie: "+movieJson);
 				e.printStackTrace();
-			}
+			}*/
 		}
 		
 		if(moviesToAdd.size()>0){
@@ -91,47 +111,68 @@ public class MongoDBAdapter{
 		
 		br.close();
 		
+		long endTime = System.currentTimeMillis();
+		System.out.println("ended in :"+ new Date(endTime-startTime));
 		
 	}
 	
 	public void populateMovieKeywords() throws IOException{
 		
-		int nOfEntryes = 40;
+		long startTime = System.currentTimeMillis();
+		System.out.println("started at: "+new Date(startTime));
+		
+		int nOfEntryes = 1000;
+		int nOfInserts = 19;
+		int nOfLinesToSkip = 0;
 		MongoCollection<Document> movieKeywords = this.mongoDatabase.getCollection("movieKeywords");
 		
-		BufferedReader br = new BufferedReader(new FileReader("ml-latest/links.csv"));
+		BufferedReader br = new BufferedReader(new FileReader("ml-latest/links_clear.csv"));
 		String currentLine = "";
 		List<Document> movieKeywordsToAdd = new LinkedList<Document>();
-		br.readLine();
 		int i=0;
-		JSONObject movieKeywordsJson = new JSONObject();
+		JSONObject movieKeywordsJson = null;
+		
+		while(nOfLinesToSkip >0){
+			br.readLine();
+			nOfLinesToSkip--;
+		}
+		
 		while((currentLine = br.readLine()) != null){
 			
 			try{
 				String movieId = currentLine.split(",")[2];
 				
-				movieKeywordsJson = this.movieAdapter.getMovieKeywords(movieId);
-				System.out.println("movie id: "+ movieKeywordsJson.getString("id")+" keywords:"+ movieKeywordsJson.getJSONArray("keywords"));
-				
-				movieKeywordsToAdd.add(Document.parse(movieKeywordsJson.toString()));
-				i++;
-				
-				if(movieKeywordsToAdd.size() == 20){
-					movieKeywords.insertMany(movieKeywordsToAdd);
-					movieKeywordsToAdd = new LinkedList<Document>();
-					System.out.println("inserisco 20 entryes,totali " + i);
+				if(movieId!=null){
+					
+					movieKeywordsJson = this.movieAdapter.getMovieKeywords(movieId);
+					//System.out.println("movie id: "+ movieKeywordsJson.getString("id")+" keywords:"+ movieKeywordsJson.getJSONArray("keywords"));
+					movieKeywordsToAdd.add(Document.parse(movieKeywordsJson.toString()));
+					i++;
+					
+					if(movieKeywordsToAdd.size() == nOfInserts){
+						movieKeywords.insertMany(movieKeywordsToAdd);
+						movieKeywordsToAdd = new LinkedList<Document>();
+						System.out.println("inserisco "+nOfInserts+" entryes,totali " + i);
+					}
+					
+					if(nOfEntryes == i){
+						break;
+					}
 				}
 				
-				if(nOfEntryes == i){
-					break;
+				else{
+					System.out.println("Error movieJson null,id: "+ movieId);
 				}
 			}
 			catch(ArrayIndexOutOfBoundsException e ){
 				System.out.println("failed parse moviedid at "+i);
 				e.printStackTrace();
-			} catch (JSONException e) {
+			}/* catch (JSONException e) {
 				System.out.println("failed parse json movieKeywords at "+i);
 				System.out.println("json movieKeywords: "+movieKeywordsJson);
+				e.printStackTrace();
+			}*/
+			catch(Exception e){
 				e.printStackTrace();
 			}
 		}
@@ -143,6 +184,9 @@ public class MongoDBAdapter{
 		
 		br.close();
 		
+		long endTime = System.currentTimeMillis();
+		System.out.println("ended in :"+ new Date(endTime-startTime));
+
 		
 	}
 	
