@@ -17,7 +17,13 @@ public class PeopleAdapter extends Adapter {
 		String url= resourcePath+idPerson;
 		JSONObject personJson = this.client.get(url);
 		return personJson;
-
+	}
+	
+	public JSONObject getDetailsAppendedRequest(String idPerson){
+		checkRequestRate();
+		String url= resourcePath+idPerson;
+		JSONObject personJson = this.client.get(url,"tv_credits");
+		return personJson;
 	}
 	
 	public JSONArray getTVCredits(String idPerson) throws JSONException{

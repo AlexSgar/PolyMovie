@@ -35,9 +35,10 @@ public class Neo4JAdapter {
 			String[] splitted = currentLine.split(",");
 			String idToAsk = splitted[2];
 			Movie currMovie = mvAd.getMovieDetails(idToAsk);
-			JSONArray related = mvAd.getMovieReccomandations(idToAsk);
-			JSONArray reviews = mvAd.getMovieReview(idToAsk);
-
+			JSONObject movieAppendedRequest = mvAd.getMovieAppendedRequest(idToAsk);
+			JSONArray related =movieAppendedRequest.getJSONObject("recommendations").getJSONArray("results");
+			JSONArray reviews = movieAppendedRequest.getJSONObject("reviews").getJSONArray("results");
+	
 			session.run( "MERGE (a:Movie {id_movie: {id}})",
 					parameters( "id", currMovie.getId()));
 
@@ -53,7 +54,7 @@ public class Neo4JAdapter {
 			}
 			
 			
-			for(int j=0; j<related.length() && j<5; j++){// da togliere il 5
+			for(int j=0; j<related.length() && j<5; j++){// da togliere il 10
 				Movie movieRelated= new Movie(related.getJSONObject(j));
 				session.run( "MATCH (a:Movie) WHERE a.id_movie={idA}"
 						+ " MERGE (m:Movie {id_movie: {id}})"
@@ -62,8 +63,9 @@ public class Neo4JAdapter {
 			}
 
 			
-			if(i==1000){
-				break;
+			if(i%300==0){
+				System.out.println("inseriti fin'ora: "+i);
+				System.out.println("id riga corrente "+ idToAsk);
 			}
 			}catch(Exception e){
 				e.printStackTrace();

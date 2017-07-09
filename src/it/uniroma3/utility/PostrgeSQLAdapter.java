@@ -22,11 +22,11 @@ public class PostrgeSQLAdapter {
 		try{
 			buildDataBase(url, dbName);//diventera una classe che crea il DB
 		}
-		catch(Exception p){
-			p.printStackTrace();
-			System.out.println("database gia esistente");}
+		catch(PSQLException p){System.out.println("database gia esistente");}
 	
+		//populater.populateActorsPart();
 		//populater.populateDB();
+		populater.populateTVPart();
 
 
 	}
@@ -35,14 +35,11 @@ public class PostrgeSQLAdapter {
 
 	public static void buildDataBase(String url, String dbName) throws SQLException {
 
-		String username = "postgres";
-		String password = "postgres";
-		
-		Connection conn = DriverManager.getConnection(url,"postgres","");
+		Connection conn = DriverManager.getConnection(url);
 		Statement statementDB = conn.createStatement();
 		String query = "CREATE DATABASE "+dbName;
 		statementDB.executeUpdate(query);
-		conn=DriverManager.getConnection(url+dbName,"postgres","");
+		conn=DriverManager.getConnection(url+dbName);
 		Statement statement = conn.createStatement();
 		query = "create table MovieCredits (id_movie TEXT, id_credit TEXT, PRIMARY KEY (id_movie, id_credit))"; 
 		statement.addBatch(query);

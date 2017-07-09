@@ -26,6 +26,19 @@ public class TMDBClient {
 	} 
 
 	
+	public JSONObject  get(String resourcePath,String request2Append) {
+		JSONObject response=null;
+		
+		String url = baseUrl+resourcePath+apiKey+"&append_to_response="+request2Append;
+		try {
+			response = readJsonFromUrl(url);
+		} catch (IOException | JSONException e) {
+			e.printStackTrace();
+		}
+		return response;
+	} 
+
+	
 	public JSONArray  getJSONArray(String resourcePath) {
 		JSONArray response=null;
 		String url = baseUrl+resourcePath+apiKey;

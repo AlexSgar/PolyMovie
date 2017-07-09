@@ -14,18 +14,6 @@ public abstract class Adapter {
 	
 	protected void checkRequestRate() {
 		this.request++;
-		if(request==15){
-			request=0;
-			try {
-				System.out.println("pausa richieste ... ");
-				Thread.sleep(3000);
-			} catch (InterruptedException e) {e.printStackTrace();}
-		}
-
-	}
-	
-	protected void checkRequestRateAlex() {
-		this.request++;
 		if(request==20){
 			request=0;
 			try {
