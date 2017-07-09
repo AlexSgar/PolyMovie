@@ -14,7 +14,7 @@ public class CassandraAdapter {
 	public static void main(String args[]) throws IOException{
 		 CassandraPopulater client = new CassandraPopulater();
 		    client.connect("127.0.0.1");
-		    //client.createSchema();
+		    client.createSchema();
 		    client.populateLanguageRelated();
 		    client.close();
 	      System.out.println("Data created");

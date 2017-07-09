@@ -5,11 +5,10 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import it.uniroma3.adapter.MovieAdapter;
@@ -39,59 +38,22 @@ public class CassandraPopulater {
 		String currentLine="";
 		int i=0;
 		session.execute("use movieDB");
-		while((currentLine = lines.readLine())!=null&&i<40000) {
-			while( 27616>i){
+		while((currentLine = lines.readLine())!=null&&i<100) {
+			/*while( 27616>i){
 				currentLine = lines.readLine();
 				i++;
-			}
-			
-			
+			}*/
+
 			try{
 				String[] splitted = currentLine.split(",");
-				String idToAsk = splitted[2];	
+				String idToAsk = splitted[2];
 				JSONObject movie = mvAdapter.getMovieLanguagesAppendedRequest(idToAsk);
 				JSONArray translationAvailable=movie.getJSONObject("translations").getJSONArray("translations");
 				JSONArray titlesAvailable=movie.getJSONObject("alternative_titles").getJSONArray("titles");
 
+				insertOfTraslations(idToAsk, translationAvailable);
+				insertOfAlternativeTitles(idToAsk, titlesAvailable);
 
-				String queryTraslation="INSERT INTO MovieTranslations(id_Movie,translation_languages,translation_Json)";
-				String jsonLanguages="[";
-				String enNameList="[";
-				StringBuilder languagesList= new StringBuilder();
-				StringBuilder languageType= new StringBuilder();
-
-				for(int j=0; j<translationAvailable.length();j++){	
-					JSONObject lng = (JSONObject) translationAvailable.get(j);
-					languagesList.append("'"+lng.getString("english_name")+"',");
-					languageType.append("{iso_3166:'"+lng.getString("iso_3166_1")+"',iso_639:'"+lng.getString("iso_639_1")+"',name:'"
-							+lng.getString("name")+"',english_name:'"+lng.getString("english_name")+"'},");
-				}
-				jsonLanguages+=languageType.toString()+"]";
-				enNameList+=languagesList+"]";
-				jsonLanguages=jsonLanguages.replaceAll(",]", "]");
-				enNameList=enNameList.replaceAll(",]", "]");
-				
-				queryTraslation+=" VALUES('"+idToAsk+"',"+enNameList+","+jsonLanguages+")";
-				session.execute(queryTraslation);
-
-				String queryTitles="INSERT INTO MovieAlternativeTitles (id_Movie, iso_3166, alternative_titles)";
-				Map<String,String> alternativeMap=new HashMap<>();
-				for(int j=0; j<titlesAvailable.length();j++){
-					JSONObject title = (JSONObject) titlesAvailable.get(j);
-					if(alternativeMap.containsKey(title.getString("iso_3166_1"))){
-						alternativeMap.get("'"+title.getString("iso_3166_1")+"'")
-						.concat("'"+title.getString("title").replaceAll("'", "''")+"',");
-					}else{
-						alternativeMap.put("'"+title.getString("iso_3166_1")+"'",
-								"['"+title.getString("title").replaceAll("'", "''")+"',");
-					}
-				}
-				for(String s:alternativeMap.keySet()){
-					String alternatives = alternativeMap.get(s)+"]";
-					alternatives=alternatives.replaceAll(",]", "]");
-					String inQuery=queryTitles+" VALUES('"+idToAsk+"',"+s+","+alternatives+")";
-					session.execute(inQuery);
-				}
 			}catch(Exception e){
 				e.printStackTrace();
 				System.out.println("problemi alla riga i: "+ i);
@@ -101,8 +63,51 @@ public class CassandraPopulater {
 			i++;
 		}
 
+	}
 
+	public void insertOfAlternativeTitles(String idToAsk,
+			JSONArray titlesAvailable) throws JSONException {
+		String queryTitles="INSERT INTO MovieAlternativeTitles (id_Movie, iso_3166, alternative_titles)";
+		Map<String,String> iso3166Map=new HashMap<>();
+		for(int j=0; j<titlesAvailable.length();j++){
+			JSONObject title = (JSONObject) titlesAvailable.get(j);
+			String escapedTitle = title.getString("title").replaceAll("'", "''");
+			String titles;
+			if(iso3166Map.containsKey(title.getString("iso_3166_1"))){
+				titles = iso3166Map.get(title.getString("iso_3166_1"));
+				titles+=("'"+escapedTitle+"',");
+			}else{titles="['"+escapedTitle+"',";}
+			
+			iso3166Map.put(title.getString("iso_3166_1"), titles);
+		}
+		for(String iso:iso3166Map.keySet()){
+			String alternatives = iso3166Map.get(iso)+"]";
+			alternatives=alternatives.replaceAll(",]", "]");
+			String inQuery=queryTitles+" VALUES('"+idToAsk+"','"+iso+"',"+alternatives+")";
+			session.execute(inQuery);
+		}
+	}
 
+	public void insertOfTraslations(String idToAsk,
+			JSONArray translationAvailable) throws JSONException {
+		String queryTraslation="INSERT INTO MovieTranslations(id_Movie,translation_languages,translation_Json)";
+		StringBuilder languagesList= new StringBuilder();
+		StringBuilder languageType= new StringBuilder();
+		
+		for(int j=0; j<translationAvailable.length();j++){	
+			JSONObject lng = (JSONObject) translationAvailable.get(j);
+			languagesList.append("'"+lng.getString("english_name")+"',");
+			languageType.append("{iso_3166:'"+lng.getString("iso_3166_1")+"',iso_639:'"+lng.getString("iso_639_1")+"',name:'"
+					+lng.getString("name")+"',english_name:'"+lng.getString("english_name")+"'},");
+		}
+		
+		String jsonLanguages="["+languageType.toString()+"]";
+		String enNameList="["+languagesList+"]";
+		jsonLanguages=jsonLanguages.replaceAll(",]", "]");
+		enNameList=enNameList.replaceAll(",]", "]");
+
+		queryTraslation+=" VALUES('"+idToAsk+"',"+enNameList+","+jsonLanguages+")";
+		session.execute(queryTraslation);
 	}
 
 
