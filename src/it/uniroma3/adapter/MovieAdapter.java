@@ -3,7 +3,9 @@ package it.uniroma3.adapter;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
 import it.uniroma3.model.Movie;
+import it.uniroma3.utility.TMDBClient;
 
 public class MovieAdapter  extends Adapter{
 	private String resourcePath="/movie/";
@@ -11,9 +13,10 @@ public class MovieAdapter  extends Adapter{
 	public MovieAdapter(){
 		super();
 	}
-	
+
+
 	public JSONObject getMovie(String idMovie){
-		checkRequestRateAlex();
+		checkRequestRate();
 		String url= resourcePath+idMovie;
 		JSONObject movieJson = this.client.get(url);
 		return movieJson;
@@ -25,7 +28,8 @@ public class MovieAdapter  extends Adapter{
 		JSONObject movieKeywords = this.client.get(url);
 		return movieKeywords;
 	}
-
+	
+	
 	public Movie getMovieDetails(String idMovie){
 		checkRequestRate();
 		String url= resourcePath+idMovie;
@@ -71,6 +75,25 @@ public class MovieAdapter  extends Adapter{
 			e.printStackTrace();}
 		return reviews;
 	}
+
+	public JSONObject getMovieAppendedRequest(String idMovie) {
+		checkRequestRate();
+		String url= resourcePath+idMovie;
+		JSONObject movieJson = this.client.get(url,"reviews,recommendations");
+		return movieJson;
+		
+	}
+	
+	
+	public JSONObject getMovieLanguagesAppendedRequest(String idMovie) {
+		checkRequestRate();
+		String url= resourcePath+idMovie;
+		JSONObject movieJson = this.client.get(url,"alternative_titles,translations");
+		return movieJson;
+		
+	}
+	
+	
 	
 
 }
