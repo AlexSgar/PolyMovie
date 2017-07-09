@@ -36,6 +36,8 @@ public class PostgressPopulater {
 	private String dbUrl;
 	private PeopleAdapter peAdapter;
 	private TVAdapter tvAdapter;
+	final  String username="postgres";
+	final  String password="";
 
 
 	public PostgressPopulater(String url, String dbName) throws FileNotFoundException, SQLException {
@@ -48,14 +50,62 @@ public class PostgressPopulater {
 		input = new FileReader("ml-latest/links_clear.csv");
 		lines = new BufferedReader(input);
 		dbUrl=(url+dbName);
-
 	}
 
 
+	public Connection getConnection(String url) throws SQLException{
+		Connection conn = DriverManager.getConnection(url,username,password);
+		return conn;
+	}
+
+
+	public void buildDataBase(String url, String dbName) throws SQLException {
+
+		Connection conn = getConnection(url);
+		Statement statementDB = conn.createStatement();
+		String query = "CREATE DATABASE "+dbName;
+		statementDB.executeUpdate(query);
+		conn=this.getConnection(url+dbName);
+		Statement statement = conn.createStatement();
+		query = "create table MovieCredits (id_movie TEXT, id_credit TEXT, PRIMARY KEY (id_movie, id_credit))"; 
+		statement.addBatch(query);
+		query = "create table Credits (id_credit TEXT, id_cast TEXT, id_actor TEXT, character TEXT, PRIMARY KEY (id_credit, id_cast))"; 
+		statement.addBatch(query); 
+		query = "create table Actors (id_actor TEXT,name TEXT ,gender INT, profile_path TEXT, popularity FLOAT, birthday TEXT, PRIMARY KEY (id_actor))"; 
+		statement.addBatch(query); 
+		query = "create table TVRoles (id_actor TEXT,id_credit_Tv TEXT,id_serie TEXT,character TEXT,episode_count INT, PRIMARY KEY (id_actor,id_credit_Tv))"; 
+		statement.addBatch(query); 
+		query = "create table TvShow (id_serie TEXT,name TEXT, original_name TEXT, seasons_number INT, episodes_number INT,status TEXT, original_language TEXT,vote_average FLOAT, popularity FLOAT, poster_path TEXT, PRIMARY KEY (id_serie))"; 
+		statement.addBatch(query); 	
+		statement.executeBatch();
+		statement.close();
+		conn.close();
+		System.out.println("Database creato correttamente!");
+	}
+
+
+	/**
+	 * popola solamente la parte di database riguardante i film con dei crediti:
+	 * @throws SQLException
+	 * @throws IOException
+	 */
+	public void populateMoviePart() throws SQLException, IOException {
+		conn=this.getConnection(dbUrl);
+		populateMovieTables();
+		conn.close();
+	}
+
+
+
+	/**
+	 *  popola solamente la parte di database riguardante gli attori e i loro ruoli:
+	 *   ci devono essere nel DB i dati relativi ai film
+	 * @throws SQLException
+	 */
 	public void populateActorsPart() throws SQLException{
 
 		retrieveActorID();
-		conn=DriverManager.getConnection(dbUrl);
+		conn=this.getConnection(dbUrl);
 		System.out.println("attori presi"+this.actorsRetrieved.size());
 
 		try {
@@ -67,53 +117,55 @@ public class PostgressPopulater {
 	}
 
 
+	/**
+	 * popola solamente la parte di database riguardante le serie tv: 
+	 * ci devono essere nel DB i dati relativi agli attori
+	 * @throws SQLException
+	 * @throws JSONException
+	 */
 	public void populateTVPart() throws SQLException, JSONException{
-
 		retrieveTVID();
-		conn=DriverManager.getConnection(dbUrl);
+		conn=this.getConnection(dbUrl);
 		System.out.println("show TV presi"+this.showsRetrieved.size());
+		populateTvShowTables();
+		conn.close();
+
+	}
+
+
+	/**
+	 * esegue sequenzialmente la popolazione delle tabelle
+	 * dei film, degli attori e delle serie TV.
+	 * Viene sfruttata la memoria volatile
+	 * @throws IOException
+	 * @throws SQLException
+	 * @throws JSONException 
+	 */
+	public void populateDB() throws IOException, SQLException, JSONException {
+		conn=this.getConnection(dbUrl);
+		
+		System.out.println("inizio l'aggiunta dei film");
+		populateMovieTables();
+
+		System.out.println("inizio l'aggiunta degli attori e dei ruoli");
+		populateActorTables();
+
+		System.out.println("inizio l'aggiunta delle serieTv");
 		populateTvShowTables();
 
 		conn.close();
 
-	}
-
-
-
-
-
-
-	public void populateDB() throws IOException, SQLException {
-		conn=DriverManager.getConnection(dbUrl);
-		System.out.println("inizio l'aggiunta dei film");
-		try {
-			populateMovieTables();
-		} catch (SQLException e) {
-			e.printStackTrace();}
-
-		System.out.println("inizio l'aggiunta degli attori e dei ruoli");
-		try {
-			populateActorTables();
-		} catch (SQLException | JSONException e) {
-			e.printStackTrace();}
-
-		System.out.println("inizio l'aggiunta delle serieTv");
-		try {
-			populateTvShowTables();
-		} catch (JSONException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		conn.close();
-
 
 
 	}
 
+
+	/*
+	 * Metodi privati per prendere dal DB gli attori e le serie presenti
+	 */
 
 	private void retrieveActorID() throws SQLException {
-		conn=DriverManager.getConnection(dbUrl);
+		conn=this.getConnection(dbUrl);
 		Statement stmt = null;
 		String query = " select distinct id_actor  from credits ";
 		stmt = conn.createStatement();
@@ -124,7 +176,7 @@ public class PostgressPopulater {
 	}
 
 	private void retrieveTVID() throws SQLException {
-		conn=DriverManager.getConnection(dbUrl);
+		conn=this.getConnection(dbUrl);
 		Statement stmt = null;
 		String query = "select distinct id_serie  from tvroles";
 		stmt = conn.createStatement();
@@ -135,17 +187,18 @@ public class PostgressPopulater {
 
 	}
 
-
-
+	/*
+	 * Metodi privati per popolare uno ad uno i database:
+	 */
 
 	private void populateMovieTables() throws SQLException, IOException {
+
 		String currentLine="";
 		int i=0;
 		int nullCredit=0;
 		List<String> idNulli= new LinkedList<String>();
-
-		String q1="INSERT INTO MovieCredits(id_movie,id_credit)"+ "VALUES(?,?)";
-		String q2="INSERT INTO Credits(id_credit,id_cast,id_actor,character)"+ "VALUES(?,?,?,?)";
+		String q1="INSERT INTO MovieCredits(id_movie,id_credit)"+ "VALUES(?,?) ON CONFLICT DO NOTHING";
+		String q2="INSERT INTO Credits(id_credit,id_cast,id_actor,character)"+ "VALUES(?,?,?,?) ON CONFLICT DO NOTHING";
 		PreparedStatement ps1 = conn.prepareStatement(q1);
 		PreparedStatement ps2 = conn.prepareStatement(q2);
 		conn.setAutoCommit(false);
@@ -156,14 +209,15 @@ public class PostgressPopulater {
 				String[] splitted = currentLine.split(",");
 				String idToAsk = splitted[2];	
 				JSONArray movieCredits = mvAd.getMovieCredits(idToAsk);
+
 				if(movieCredits!=null){
-					nullCredit++;
-					idNulli.add(idToAsk);
 					Pair<String, JSONArray> pair = new Pair<String, JSONArray>(idToAsk, movieCredits);
 					movie2credits.add(pair);
+				}else{
+					nullCredit++;
+					idNulli.add(idToAsk);
 				}
 
-				//List<Pair<String, String>> movieAndCredits= new LinkedList<Pair<String,String>>();
 				for(Pair<String, JSONArray> mc :movie2credits){
 					String idMovie = mc.getLeft();
 					JSONArray credits = mc.getRight();
@@ -175,29 +229,27 @@ public class PostgressPopulater {
 						ps1.setString(1,idMovie);
 						ps1.setString(2,idCredit);
 						ps1.addBatch();
-
 						ps2.setString(1,idCredit);
 						ps2.setString(2,jsonC.getString("cast_id"));
 						ps2.setString(3,id_actor);
 						ps2.setString(4,jsonC.getString("character"));
 						ps2.addBatch();
 						actorsRetrieved.add(id_actor);
-						//movieAndCredits.add(new Pair<String, String>(idMovie, idCredit));
 					}
-
 				}
 				movie2credits.clear();
 
-				System.out.println("sono ad "+ i);
-				System.out.println(idToAsk);
+				System.out.println("riga numero:"+ i);
+				//System.out.println(idToAsk);
 				if(i%100==0){
 					try{
 						System.out.println("movie credit scirtti "+ i);
+						System.out.println("crediti nulli fin'ora: "+nullCredit);
+						System.out.println("id film problematici: "+idNulli.toString());
 						ps1.executeBatch();
 						ps2.executeBatch();
 						conn.commit();
 					}catch(Exception e){e.printStackTrace();}
-
 				}
 
 			}catch(Exception e){
@@ -212,10 +264,10 @@ public class PostgressPopulater {
 			conn.commit();
 		}catch(Exception e){e.printStackTrace();}
 
-		System.out.println("crediti nulli:"+nullCredit+"\n id film problematici");
-		System.out.println(idNulli.toString());
+	
 
 	}
+
 
 	private void populateActorTables() throws SQLException, IOException, JSONException{
 
@@ -225,7 +277,6 @@ public class PostgressPopulater {
 		PreparedStatement ps4 = conn.prepareStatement(q4);
 		conn.setAutoCommit(false);
 		int i =0;
-
 		int numberOfActors = actorsRetrieved.size();
 
 		for(String idActor: actorsRetrieved){

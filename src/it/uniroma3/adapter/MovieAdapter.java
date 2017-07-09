@@ -23,7 +23,7 @@ public class MovieAdapter  extends Adapter{
 	}
 	
 	public JSONObject getMovieKeywords(String idMovie){
-		checkRequestRateAlex();
+		checkRequestRate();
 		String url = resourcePath + idMovie +"/keywords";
 		JSONObject movieKeywords = this.client.get(url);
 		return movieKeywords;
@@ -58,7 +58,10 @@ public class MovieAdapter  extends Adapter{
 		JSONArray credits=null;
 		try {
 			credits = creditsJson.getJSONArray("cast");
-		} catch (JSONException e) {
+			if(credits.length()==0){
+				credits=null;
+			}
+		} catch (Exception e) {
 			e.printStackTrace();}
 		return credits;
 	}

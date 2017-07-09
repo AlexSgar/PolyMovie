@@ -34,5 +34,14 @@ public class PeopleAdapter extends Adapter {
 		return castingJson;
 
 	}
+	
+	public JSONArray getPopular() throws JSONException{
+		checkRequestRate();
+		String url= resourcePath+"popular";
+		JSONObject popularJson = this.client.get(url);
+		JSONArray acotrsJson= popularJson.getJSONArray("results");
+		return acotrsJson;
+
+	}
 
 }

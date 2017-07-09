@@ -20,7 +20,6 @@ public class TMDBClient {
 			response = readJsonFromUrl(url);
 		} catch (IOException | JSONException e) {
 			e.printStackTrace();
-			return null;
 		}
 		return response;
 	} 
@@ -61,9 +60,7 @@ public class TMDBClient {
 	}
 
 	public JSONObject readJsonFromUrl(String url) throws IOException, JSONException {
-		HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
-		int httpResponseCode = conn.getResponseCode();
-		InputStream is = conn.getInputStream();
+		InputStream is = new URL(url).openStream();
 		try {
 			BufferedReader rd = new BufferedReader(new InputStreamReader(is, "UTF-8"));
 			String jsonText = readAll(rd);

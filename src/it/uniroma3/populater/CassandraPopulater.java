@@ -4,6 +4,9 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -12,10 +15,13 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import it.uniroma3.adapter.MovieAdapter;
+import it.uniroma3.adapter.PeopleAdapter;
 
+import com.datastax.driver.core.BoundStatement;
 import com.datastax.driver.core.Cluster;
 import com.datastax.driver.core.Host;
 import com.datastax.driver.core.Metadata;
+import com.datastax.driver.core.PreparedStatement;
 import com.datastax.driver.core.Session;
 import com.datastax.driver.core.exceptions.AlreadyExistsException;
 import com.datastax.driver.core.exceptions.InvalidQueryException;
@@ -24,12 +30,14 @@ public class CassandraPopulater {
 	private Session session;
 	private Cluster cluster;
 	private  MovieAdapter mvAdapter;
+	private PeopleAdapter pplAdapter;
 	private FileReader input;
 	private BufferedReader lines ;
 
 
 	public CassandraPopulater() throws FileNotFoundException {
 		mvAdapter = new MovieAdapter();
+		pplAdapter= new PeopleAdapter();
 		input = new FileReader("ml-latest/links_clear.csv");
 		lines = new BufferedReader(input);
 	}
@@ -77,7 +85,7 @@ public class CassandraPopulater {
 				titles = iso3166Map.get(title.getString("iso_3166_1"));
 				titles+=("'"+escapedTitle+"',");
 			}else{titles="['"+escapedTitle+"',";}
-			
+
 			iso3166Map.put(title.getString("iso_3166_1"), titles);
 		}
 		for(String iso:iso3166Map.keySet()){
@@ -93,14 +101,14 @@ public class CassandraPopulater {
 		String queryTraslation="INSERT INTO MovieTranslations(id_Movie,translation_languages,translation_Json)";
 		StringBuilder languagesList= new StringBuilder();
 		StringBuilder languageType= new StringBuilder();
-		
+
 		for(int j=0; j<translationAvailable.length();j++){	
 			JSONObject lng = (JSONObject) translationAvailable.get(j);
 			languagesList.append("'"+lng.getString("english_name")+"',");
 			languageType.append("{iso_3166:'"+lng.getString("iso_3166_1")+"',iso_639:'"+lng.getString("iso_639_1")+"',name:'"
 					+lng.getString("name")+"',english_name:'"+lng.getString("english_name")+"'},");
 		}
-		
+
 		String jsonLanguages="["+languageType.toString()+"]";
 		String enNameList="["+languagesList+"]";
 		jsonLanguages=jsonLanguages.replaceAll(",]", "]");
@@ -160,6 +168,38 @@ public class CassandraPopulater {
 		}catch(InvalidQueryException ex){
 			System.out.println("columnfamilies gia create");
 		}
+	}
+
+	public void populateBestActor() {
+		LocalDate localDate = LocalDate.now();
+		String todayDate = DateTimeFormatter.ofPattern("yyy/MM/dd").format(localDate);
+		session.execute("use movieDB");
+		try {
+			JSONArray popularActors = pplAdapter.getPopular();
+			String queryActor="INSERT INTO actordailyranking(timestamp,rank,id_actor,known_for_json,name,popularity_score)";
+			for(int j=0; j<popularActors.length();j++){
+				JSONObject currentActor =(JSONObject)popularActors.get(j);
+				JSONArray known4Array = currentActor.getJSONArray("known_for");
+				String known4="[";
+				for(int k=0; k<known4Array.length();k++ ){
+					JSONObject role =(JSONObject)known4Array.get(k);
+					known4+="{id:'"+role.getString("id")+"',media_type:'"+role.getString("media_type")+"'},";
+				}
+				known4+="]";
+				known4=known4.replaceAll(",]", "]");
+				PreparedStatement ps= session.prepare(queryActor+" VALUES(?,?,?,"+known4+",?,?)");
+				BoundStatement bind = ps.bind(todayDate,j+1,currentActor.getString("id"),
+						currentActor.getString("name"),currentActor.getDouble("popularity"));
+				session.execute(bind);
+			}
+
+		} catch (JSONException e) {
+			e.printStackTrace();
+			System.out.println("errore con il json");
+		}
+
+
+
 	}
 
 
