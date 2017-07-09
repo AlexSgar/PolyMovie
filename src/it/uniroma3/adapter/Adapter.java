@@ -17,7 +17,7 @@ public abstract class Adapter {
 		if(request==20){
 			request=0;
 			try {
-				System.out.println("pausa richieste ... ");
+				System.out.println("Pausa per TMDBClient ... ");
 				Thread.sleep(3000);
 			} catch (InterruptedException e) {e.printStackTrace();}
 		}

@@ -1,7 +1,6 @@
 package it.uniroma3.utility;
 
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Date;
@@ -24,9 +23,10 @@ public class MongoDBAdapter{
 	private MongoClient mongoClient;
 	private MovieAdapter movieAdapter;
 	private MongoDatabase mongoDatabase;
+	private MongoCollection<Document> movies;
+	private MongoCollection<Document> moviesKeywords;
 	
 	public MongoDBAdapter (){
-		super();
 		this.mongoClient = new MongoClient();  //use default ("localhost" , 27017)
 		this.movieAdapter = new MovieAdapter();
 		this.mongoDatabase = this.mongoClient.getDatabase("tmdb");
@@ -35,160 +35,120 @@ public class MongoDBAdapter{
 	public static void main(String[] args) throws IOException{
 		
 		MongoDBAdapter mongoDBAdapter = new MongoDBAdapter();
-		//mongoDBAdapter.deleteCollection();
-		//mongoDBAdapter.populateMovies();
-		mongoDBAdapter.populateMovieKeywords();
+		//mongoDBAdapter.deleteCollection("movies");
+		//mongoDBAdapter.deleteCollection("movieKeywords");
+		//mongoDBAdapter.populateMoviesAndMoviesKeywords();
 		//mongoDBAdapter.printElements();
 		
 	}
 	
-	public void populateMovies() throws IOException{
-	
+	public void populateMoviesAndMoviesKeywords() throws IOException{
+		
 		long startTime = System.currentTimeMillis();
 		System.out.println("started at: "+new Date(startTime));
 		
-		int nOfEntryes = 2000;
-		int nOfInserts = 19;
+		int maxEntriesToInsert = 50000;
+		int nOfCurrentGoodRequest = 0;
+		int nOfInsertedEntries = 0;
+		int batchSize = 19;
 		int nOfLinesToSkip = 0;
-		MongoCollection<Document> movies = this.mongoDatabase.getCollection("movies");
 		
 		BufferedReader br = new BufferedReader(new FileReader("ml-latest/links_clear.csv"));
-		String currentLine = "";
+		this.movies = this.mongoDatabase.getCollection("movies");
+		this.moviesKeywords = this.mongoDatabase.getCollection("movieKeywords");
+		
 		List<Document> moviesToAdd = new LinkedList<Document>();
-		int i=0;
+		List<Document> moviesKeywordsToAdd = new LinkedList<Document>();
 		JSONObject movieJson = null;
+		String movieId=null;
+		String currentLine = "";
+		int currentLineNumber=0;
 		
 		while(nOfLinesToSkip >0){
 			br.readLine();
+			currentLineNumber++;
 			nOfLinesToSkip--;
 		}
 		
 		while((currentLine = br.readLine()) != null){
-			
 			try{
-				String movieId = currentLine.split(",")[2];
-				
-				movieJson = this.movieAdapter.getMovie(movieId);
+				currentLineNumber++;
+				movieId = currentLine.split(",")[2];
+				movieJson = this.movieAdapter.getMovieAndKeywords(movieId);
 				//System.out.println("movie id: "+ movieJson.getString("id")+" title:"+ movieJson.getString("title"));
+				
 				if(movieJson!=null){
 					
-					movieJson.remove("id");
-					moviesToAdd.add(Document.parse(movieJson.toString()).append("_id", movieId));
-					i++;
+					//add movieKeywords to moviesKeywordsToAdd collection
+					moviesKeywordsToAdd.add(Document.parse(movieJson.getJSONObject("keywords").toString())
+													.append("id_movie", Integer.parseInt(movieId)));
 					
-					if(moviesToAdd.size() == nOfInserts){
-						movies.insertMany(moviesToAdd);
+					//add movie to moviesToAdd collection
+					movieJson.remove("id");
+					movieJson.remove("keywords");
+					moviesToAdd.add(Document.parse(movieJson.toString())
+											.append("_id", Integer.parseInt(movieId)));
+					nOfCurrentGoodRequest++;
+					if(nOfCurrentGoodRequest == batchSize){
+						
+						insertMovies(moviesToAdd);
 						moviesToAdd = new LinkedList<Document>();
-						System.out.println("inserisco "+nOfInserts+" entryes,totali " + i);
+						insertMoviesKeywords(moviesKeywordsToAdd);
+						moviesKeywordsToAdd = new LinkedList<Document>();
+						
+						nOfInsertedEntries+=nOfCurrentGoodRequest;
+						nOfCurrentGoodRequest=0;
+						System.out.println("Insert "+batchSize+" entries,total " + nOfInsertedEntries);
 					}
 					
-					if(nOfEntryes == i){
+					if (currentLineNumber == maxEntriesToInsert){
 						break;
 					}
 				}
 				else{
-					System.out.println("Error movieJson null,id: "+ movieId);
+					System.out.println("Error TMDBClient movie doesn't exists,id: "+ movieId);
 				}
 			}
 			catch(ArrayIndexOutOfBoundsException e ){
-				System.out.println("failed parse moviedid at "+i);
 				e.printStackTrace();
+				System.out.println("Failed split file line at "+currentLineNumber);
+				System.out.println("currentLine: "+currentLine);
+			}
+			catch (JSONException e) { 
+				e.printStackTrace();
+				System.out.println("Failed parse movieJson at line"+ currentLineNumber);
+				System.out.println("movieId: "+movieId);
+				System.out.println("movieJson: "+movieJson);
 			}
 			catch(Exception e){
 				e.printStackTrace();
+				System.out.println("Exception at movieJson,id: "+ movieId);
 			}
-				/* catch (JSONException e) { 
-				System.out.println("failed parse json movie at "+i);
-				System.out.println("json movie: "+movieJson);
-				e.printStackTrace();
-			}*/
 		}
 		
-		if(moviesToAdd.size()>0){
-			movies.insertMany(moviesToAdd);
-			System.out.println("inserisco "+moviesToAdd.size()+" entryes,totali " + i);
+		if(nOfCurrentGoodRequest>0){
+			insertMovies(moviesToAdd);
+			insertMoviesKeywords(moviesKeywordsToAdd);
+			nOfInsertedEntries+=nOfCurrentGoodRequest;
+			System.out.println("Insert "+nOfCurrentGoodRequest+" entries,total " + nOfInsertedEntries);
 		}
 		
 		br.close();
 		
 		long endTime = System.currentTimeMillis();
-		System.out.println("ended in :"+ new Date(endTime-startTime));
+		System.out.println("end time: "+new Date(endTime));
+		System.out.println("ended in: "+((endTime-startTime)/1000)/60.0+" minutes");
 		
 	}
 	
-	public void populateMovieKeywords() throws IOException{
-		
-		long startTime = System.currentTimeMillis();
-		System.out.println("started at: "+new Date(startTime));
-		
-		int nOfEntryes = 1000;
-		int nOfInserts = 19;
-		int nOfLinesToSkip = 0;
-		MongoCollection<Document> movieKeywords = this.mongoDatabase.getCollection("movieKeywords");
-		
-		BufferedReader br = new BufferedReader(new FileReader("ml-latest/links_clear.csv"));
-		String currentLine = "";
-		List<Document> movieKeywordsToAdd = new LinkedList<Document>();
-		int i=0;
-		JSONObject movieKeywordsJson = null;
-		
-		while(nOfLinesToSkip >0){
-			br.readLine();
-			nOfLinesToSkip--;
-		}
-		
-		while((currentLine = br.readLine()) != null){
-			
-			try{
-				String movieId = currentLine.split(",")[2];
-				
-				if(movieId!=null){
-					
-					movieKeywordsJson = this.movieAdapter.getMovieKeywords(movieId);
-					//System.out.println("movie id: "+ movieKeywordsJson.getString("id")+" keywords:"+ movieKeywordsJson.getJSONArray("keywords"));
-					movieKeywordsToAdd.add(Document.parse(movieKeywordsJson.toString()));
-					i++;
-					
-					if(movieKeywordsToAdd.size() == nOfInserts){
-						movieKeywords.insertMany(movieKeywordsToAdd);
-						movieKeywordsToAdd = new LinkedList<Document>();
-						System.out.println("inserisco "+nOfInserts+" entryes,totali " + i);
-					}
-					
-					if(nOfEntryes == i){
-						break;
-					}
-				}
-				
-				else{
-					System.out.println("Error movieJson null,id: "+ movieId);
-				}
-			}
-			catch(ArrayIndexOutOfBoundsException e ){
-				System.out.println("failed parse moviedid at "+i);
-				e.printStackTrace();
-			}/* catch (JSONException e) {
-				System.out.println("failed parse json movieKeywords at "+i);
-				System.out.println("json movieKeywords: "+movieKeywordsJson);
-				e.printStackTrace();
-			}*/
-			catch(Exception e){
-				e.printStackTrace();
-			}
-		}
-		
-		if(movieKeywordsToAdd.size()>0){
-			movieKeywords.insertMany(movieKeywordsToAdd);
-			System.out.println("inserisco "+movieKeywordsToAdd.size()+" entryes,totali " + i);
-		}
-		
-		br.close();
-		
-		long endTime = System.currentTimeMillis();
-		System.out.println("ended in :"+ new Date(endTime-startTime));
-
-		
+	private void insertMovies(List<Document> moviesToAdd){
+		movies.insertMany(moviesToAdd);
 	}
+	
+	private void insertMoviesKeywords(List<Document> moviesKeywordsToAdd){
+		moviesKeywords.insertMany(moviesKeywordsToAdd);
+	}
+	
 	
 	public void printElements(){
 		MongoCollection<Document> movies = this.mongoDatabase.getCollection("movies");
@@ -207,8 +167,8 @@ public class MongoDBAdapter{
 		}
 	}
 	
-	public void deleteCollection(){
-		MongoCollection<Document> movies = this.mongoDatabase.getCollection("movies");
+	public void deleteCollection(String collectionName){
+		MongoCollection<Document> movies = this.mongoDatabase.getCollection(collectionName);
 		movies.deleteMany(new Document());
 	}
 }

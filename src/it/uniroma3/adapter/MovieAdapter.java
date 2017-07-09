@@ -5,7 +5,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import it.uniroma3.model.Movie;
-import it.uniroma3.utility.TMDBClient;
 
 public class MovieAdapter  extends Adapter{
 	private String resourcePath="/movie/";
@@ -27,6 +26,13 @@ public class MovieAdapter  extends Adapter{
 		String url = resourcePath + idMovie +"/keywords";
 		JSONObject movieKeywords = this.client.get(url);
 		return movieKeywords;
+	}
+	
+	public JSONObject getMovieAndKeywords(String idMovie){
+		checkRequestRate();
+		String url= resourcePath+idMovie;
+		JSONObject movieJson = this.client.get(url,"keywords");
+		return movieJson;
 	}
 	
 	
