@@ -22,8 +22,7 @@ public class TMDBClient {
 			e.printStackTrace();
 		}
 		return response;
-	} 
-
+	}
 	
 	public JSONObject get(String resourcePath,String request2Append) {
 		JSONObject response=null;

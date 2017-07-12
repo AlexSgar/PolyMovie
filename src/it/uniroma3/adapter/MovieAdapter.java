@@ -17,24 +17,32 @@ public class MovieAdapter  extends Adapter{
 	public JSONObject getMovie(String idMovie){
 		checkRequestRate();
 		String url= resourcePath+idMovie;
-		JSONObject movieJson = this.client.get(url);
-		return movieJson;
+		return this.client.get(url);
+	}
+	
+	public JSONObject getMovieImages(String idMovie){
+		checkRequestRate();
+		String url= resourcePath+idMovie+"/images";
+		return this.client.get(url);
+	}
+	
+	public JSONObject getMovieAppendImagesAndVideos(String idMovie){
+		checkRequestRate();
+		String url= resourcePath+idMovie;
+		return this.client.get(url,"images,videos");
 	}
 	
 	public JSONObject getMovieKeywords(String idMovie){
 		checkRequestRate();
 		String url = resourcePath + idMovie +"/keywords";
-		JSONObject movieKeywords = this.client.get(url);
-		return movieKeywords;
+		return this.client.get(url);
 	}
 	
-	public JSONObject getMovieAndKeywords(String idMovie){
+	public JSONObject getMovieAppendKeywords(String idMovie){
 		checkRequestRate();
 		String url= resourcePath+idMovie;
-		JSONObject movieJson = this.client.get(url,"keywords");
-		return movieJson;
+		return this.client.get(url,"keywords");
 	}
-	
 	
 	public Movie getMovieDetails(String idMovie){
 		checkRequestRate();

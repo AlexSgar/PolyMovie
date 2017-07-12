@@ -43,5 +43,12 @@ public class PeopleAdapter extends Adapter {
 		return acotrsJson;
 
 	}
+	
+	public JSONObject getImages(String idPerson) throws JSONException{
+		checkRequestRate();
+		String url= resourcePath+idPerson+"/images";
+		return this.client.get(url);
+
+	}
 
 }
