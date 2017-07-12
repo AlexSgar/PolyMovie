@@ -15,8 +15,8 @@ public class CassandraAdapter {
 		 CassandraPopulater client = new CassandraPopulater();
 		    client.connect("127.0.0.1");
 		    client.createSchema();
-		    //client.populateLanguageRelated();
-		    client.populateBestActor();
+		    client.populateLanguageRelated();
+		    //client.populateBestActor();
 		    client.close();
 	      System.out.println("Data created");
 	   }

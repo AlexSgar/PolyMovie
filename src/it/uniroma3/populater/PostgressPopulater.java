@@ -20,6 +20,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import javax.print.DocFlavor;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -110,6 +112,7 @@ public class PostgressPopulater {
 
 		try {
 			populateActorTables();
+			
 		} catch (SQLException | JSONException | IOException e) {
 			e.printStackTrace();}
 		conn.close();
@@ -143,7 +146,7 @@ public class PostgressPopulater {
 	 */
 	public void populateDB() throws IOException, SQLException, JSONException {
 		conn=this.getConnection(dbUrl);
-		
+
 		System.out.println("inizio l'aggiunta dei film");
 		populateMovieTables();
 
@@ -167,7 +170,7 @@ public class PostgressPopulater {
 	private void retrieveActorID() throws SQLException {
 		conn=this.getConnection(dbUrl);
 		Statement stmt = null;
-		String query = " select distinct id_actor  from credits ";
+		String query = " select distinct id_actor  from credits order by id_actor";
 		stmt = conn.createStatement();
 		ResultSet rs = stmt.executeQuery(query);
 		while (rs.next()) {
@@ -203,7 +206,7 @@ public class PostgressPopulater {
 		PreparedStatement ps2 = conn.prepareStatement(q2);
 		conn.setAutoCommit(false);
 
-		while((currentLine = lines.readLine())!=null&&i<10000) {
+		while((currentLine = lines.readLine())!=null) {
 			try{
 				i++;
 				String[] splitted = currentLine.split(",");
@@ -264,13 +267,14 @@ public class PostgressPopulater {
 			conn.commit();
 		}catch(Exception e){e.printStackTrace();}
 
-	
+
 
 	}
 
 
 	private void populateActorTables() throws SQLException, IOException, JSONException{
-
+		List<String> errors=new LinkedList<String>();
+		List<Integer> tryToinsert=new LinkedList<Integer>();
 		String q3="INSERT INTO Actors(id_actor,name,gender,profile_path,popularity,birthday)"+ "VALUES(?,?,?,?,?,?)  ON CONFLICT DO NOTHING";
 		String q4="INSERT INTO TVRoles(id_actor,id_credit_Tv,id_serie,character,episode_count)"+ "VALUES(?,?,?,?,?)  ON CONFLICT DO NOTHING";
 		PreparedStatement ps3 = conn.prepareStatement(q3);
@@ -280,51 +284,114 @@ public class PostgressPopulater {
 		int numberOfActors = actorsRetrieved.size();
 
 		for(String idActor: actorsRetrieved){
-			i++;
+			if(i>117099){
 
-			JSONObject actorInfo=peAdapter.getDetailsAppendedRequest(idActor);
-			JSONArray castJSarray = actorInfo.getJSONObject("tv_credits").getJSONArray("cast");
+				tryToinsert.add(i);
+				JSONObject actorInfo=peAdapter.getDetailsAppendedRequest(idActor);
 
-			ps3.setString(1,idActor);
-			ps3.setString(2,actorInfo.getString("name"));
-			ps3.setInt(3,actorInfo.getInt("gender"));
-			ps3.setString(4,actorInfo.getString("profile_path"));
-			ps3.setFloat(5,new Float(actorInfo.getDouble("popularity")));
-			ps3.setString(6,actorInfo.getString("birthday"));
-			ps3.addBatch();
-			System.out.println("attore i:"+i+" con tot serieTV:"+castJSarray.length());
-			for(int h=0; h<castJSarray.length(); h++){
-
-				JSONObject casting = (JSONObject) castJSarray.get(h);
-				String showId = casting.getString("id");
-
-				ps4.setString(1,idActor);
-				ps4.setString(2,casting.getString("credit_id"));
-				ps4.setString(3,showId);
-				ps4.setString(4,casting.getString("character"));
-				ps4.setInt(5,casting.getInt("episode_count"));
-				ps4.addBatch();
-				showsRetrieved.add(showId);
-			}
-
-			if(i%10==0){
 				try{
-					System.out.println("attori e ruoli inseriti su "+numberOfActors+": "+i);
-					ps3.executeBatch();
-					ps4.executeBatch();
-					conn.commit();
-				}catch(Exception e){e.printStackTrace();}	
-			}
+					JSONArray castJSarray = actorInfo.getJSONObject("tv_credits").getJSONArray("cast");
+
+
+					ps3.setString(1,idActor);
+					ps3.setString(2,actorInfo.getString("name"));
+					ps3.setInt(3,actorInfo.getInt("gender"));
+					ps3.setString(4,actorInfo.getString("profile_path"));
+					ps3.setFloat(5,new Float(actorInfo.getDouble("popularity")));
+					ps3.setString(6,actorInfo.getString("birthday"));
+					ps3.addBatch();
+					System.out.println("sono all'attore i:"+i+" con tot serieTV:"+castJSarray.length());
+					for(int h=0; h<castJSarray.length(); h++){
+
+						JSONObject casting = (JSONObject) castJSarray.get(h);
+						String showId = casting.getString("id");
+
+						ps4.setString(1,idActor);
+						ps4.setString(2,casting.getString("credit_id"));
+						ps4.setString(3,showId);
+						ps4.setString(4,casting.getString("character"));
+						ps4.setInt(5,casting.getInt("episode_count"));
+						ps4.addBatch();
+						showsRetrieved.add(showId);
+					}
+
+					if(i%100==0){
+						try{
+							System.out.println("attori e ruoli inseriti su "+numberOfActors+": "+i);
+							System.out.println("percentuale completamento: "+(new Double(i)/numberOfActors)*100+" %");
+							ps3.executeBatch();
+							ps4.executeBatch();
+							conn.commit();
+							tryToinsert=new LinkedList<Integer>();
+						}catch(Exception e){
+							e.printStackTrace();
+							errors.add(tryToinsert.toString());
+							tryToinsert=new LinkedList<Integer>();
+
+						}	
+					}
+					i++;
+				}catch(JSONException j){
+					j.printStackTrace();
+					System.out.println("problemi con l'attore "+ idActor);
+
+				}	
+			}else{
+				i++;}
 		}
 		try{
 			System.out.println("attori e serie inseriti "+i);
 			ps3.executeBatch();
 			ps4.executeBatch();
 			conn.commit();
-		}catch(Exception e){e.printStackTrace();}
+			tryToinsert=new LinkedList<Integer>();
+		}catch(Exception e){
+			e.printStackTrace();
+			errors.add(tryToinsert.toString());
+			tryToinsert=new LinkedList<Integer>();}
 
 
 	}
+
+	/*
+	public void fixError() throws SQLException, IOException, JSONException{
+		conn= this.getConnection(dbUrl);
+		input = new FileReader("ml-latest/movieDaRifare.txt");
+		lines = new BufferedReader(input);
+		String currentLine="";
+		conn.setAutoCommit(false);
+		String q2="INSERT INTO Credits(id_credit,id_cast,id_actor,character)"+ "VALUES(?,?,?,?) ON CONFLICT DO NOTHING";
+		PreparedStatement ps2 = conn.prepareStatement(q2);
+		int i=0;
+		while((currentLine = lines.readLine())!=null) {
+
+			JSONArray credits = mvAd.getMovieCredits(currentLine);
+			for(int k=0; k<credits.length(); k++){
+				JSONObject jsonC = (JSONObject)credits.get(k);
+				String castid = jsonC.getString("cast_id");
+				if(castid.equals("1011")||castid.equals("1009")){
+					String idCredit = jsonC.getString("credit_id");
+					String id_actor = jsonC.getString("id");
+					ps2.setString(1,idCredit);
+					ps2.setString(2,castid);
+					ps2.setString(3,id_actor);
+					ps2.setString(4,jsonC.getString("character"));
+					ps2.addBatch();
+					i++;
+				}
+			}
+		}
+
+		ps2.executeBatch();
+		conn.commit();
+		System.out.println(i);
+		conn.close();
+
+
+
+
+
+	}*/
 
 
 	private void populateTvShowTables() throws SQLException, JSONException {
@@ -339,31 +406,39 @@ public class PostgressPopulater {
 		int numberOfShows = showsRetrieved.size();
 
 		for(String idShow: showsRetrieved){
-			i++;
-			JSONObject tvJson = tvAdapter.getDetails(idShow);
-			try{
-				ps5.setString(1,idShow);
-				ps5.setString(2,tvJson.getString("name"));
-				ps5.setString(3,tvJson.getString("original_name"));
-				ps5.setInt(4,tvJson.getInt("number_of_seasons"));
-				ps5.setInt(5,tvJson.getInt("number_of_episodes"));
-				ps5.setString(6,tvJson.getString("status"));
-				ps5.setString(7,tvJson.getString("original_language"));
-				ps5.setDouble(8,tvJson.getDouble("vote_average"));
-				ps5.setDouble(9,tvJson.getDouble("popularity"));
-				ps5.setString(10,tvJson.getString("poster_path"));
-				ps5.addBatch();
-			}catch(JSONException j){
-				System.out.println(tvJson.toString());
-			}
 
-			if(i%100==0){
+			if(true){
+
+				JSONObject tvJson = tvAdapter.getDetails(idShow);
+				try{
+					ps5.setString(1,idShow);
+					ps5.setString(2,tvJson.getString("name"));
+					ps5.setString(3,tvJson.getString("original_name"));
+					ps5.setInt(4,tvJson.getInt("number_of_seasons"));
+					ps5.setInt(5,tvJson.getInt("number_of_episodes"));
+					ps5.setString(6,tvJson.getString("status"));
+					ps5.setString(7,tvJson.getString("original_language"));
+					ps5.setDouble(8,tvJson.getDouble("vote_average"));
+					ps5.setDouble(9,tvJson.getDouble("popularity"));
+					ps5.setString(10,tvJson.getString("poster_path"));
+					ps5.addBatch();
+				}catch(JSONException j){
+					System.out.println(tvJson.toString());
+					System.out.println("errori alla riga"+ i);
+				}
 				System.out.println("serie inserite su "+numberOfShows+": "+i);
-				ps5.executeBatch();
-				conn.commit();}
-			ps5.executeBatch();
-			conn.commit();
+				if(i%100==0){
+					System.out.println("serie inserite su "+numberOfShows+": "+i);
+					System.out.println("percentuale completamento: "+(new Double(i)/numberOfShows)*100+" %");
+					ps5.executeBatch();
+					conn.commit();}
+				i++;
+			}else
+				i++;
 		}
+		ps5.executeBatch();
+		conn.commit();
+
 
 	}
 

@@ -101,8 +101,5 @@ public class MovieAdapter  extends Adapter{
 		return movieJson;
 		
 	}
-	
-	
-	
 
 }

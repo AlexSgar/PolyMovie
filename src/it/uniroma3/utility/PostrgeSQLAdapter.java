@@ -23,9 +23,9 @@ public class PostrgeSQLAdapter {
 			populater.buildDataBase(url, dbName);
 		}
 		catch(PSQLException p){System.out.println("database gia esistente");}
-		populater.populateDB();
+		//populater.populateDB();
 
-		//populater.populateMoviePart();
+		//populater.fixError();
 		//populater.populateActorsPart();
 		//populater.populateTVPart();
 

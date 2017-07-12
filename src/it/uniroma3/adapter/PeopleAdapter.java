@@ -43,5 +43,13 @@ public class PeopleAdapter extends Adapter {
 		return acotrsJson;
 
 	}
+	
+	
+	public JSONObject getMoviecredits(String id_credit){
+		checkRequestRate();
+		String url= resourcePath+id_credit;
+		JSONObject creditPerson = this.client.get(url,"movie_credits");
+		return creditPerson;
+	}
 
 }
