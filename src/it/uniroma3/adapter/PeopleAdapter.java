@@ -11,21 +11,21 @@ public class PeopleAdapter extends Adapter {
 	public PeopleAdapter() {
 		super();
 	}
-	
+
 	public JSONObject getDetails(String idPerson){
 		checkRequestRate();
 		String url= resourcePath+idPerson;
 		JSONObject personJson = this.client.get(url);
 		return personJson;
 	}
-	
+
 	public JSONObject getDetailsAppendedRequest(String idPerson){
 		checkRequestRate();
 		String url= resourcePath+idPerson;
 		JSONObject personJson = this.client.get(url,"tv_credits");
 		return personJson;
 	}
-	
+
 	public JSONArray getTVCredits(String idPerson) throws JSONException{
 		checkRequestRate();
 		String url= resourcePath+idPerson+"/tv_credits";
@@ -34,7 +34,7 @@ public class PeopleAdapter extends Adapter {
 		return castingJson;
 
 	}
-	
+
 	public JSONArray getPopular() throws JSONException{
 		checkRequestRate();
 		String url= resourcePath+"popular";
@@ -43,21 +43,19 @@ public class PeopleAdapter extends Adapter {
 		return acotrsJson;
 
 	}
-	
-<<<<<<< HEAD
+
+
 	public JSONObject getImages(String idPerson) throws JSONException{
 		checkRequestRate();
 		String url= resourcePath+idPerson+"/images";
 		return this.client.get(url);
+	}
 
-=======
-	
 	public JSONObject getMoviecredits(String id_credit){
 		checkRequestRate();
 		String url= resourcePath+id_credit;
 		JSONObject creditPerson = this.client.get(url,"movie_credits");
 		return creditPerson;
->>>>>>> 556987df88f6c8395d151191151edc5bcc65292d
 	}
 
 }
