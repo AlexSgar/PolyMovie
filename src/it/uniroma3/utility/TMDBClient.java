@@ -13,7 +13,7 @@ public class TMDBClient {
 
 	public TMDBClient(){}
 
-	public JSONObject get(String resourcePath) {
+	public JSONObject  get(String resourcePath) {
 		JSONObject response=null;
 		String url = baseUrl+resourcePath+apiKey;
 		try {
@@ -24,7 +24,7 @@ public class TMDBClient {
 		return response;
 	}
 	
-	public JSONObject get(String resourcePath,String request2Append) {
+	public JSONObject  get(String resourcePath,String request2Append) {
 		JSONObject response=null;
 		
 		String url = baseUrl+resourcePath+apiKey+"&append_to_response="+request2Append;
@@ -37,7 +37,7 @@ public class TMDBClient {
 	} 
 
 	
-	public JSONArray getJSONArray(String resourcePath) {
+	public JSONArray  getJSONArray(String resourcePath) {
 		JSONArray response=null;
 		String url = baseUrl+resourcePath+apiKey;
 		try {

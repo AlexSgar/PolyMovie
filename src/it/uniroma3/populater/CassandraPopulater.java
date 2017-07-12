@@ -46,7 +46,7 @@ public class CassandraPopulater {
 		String currentLine="";
 		int i=0;
 		session.execute("use movieDB");
-		while((currentLine = lines.readLine())!=null&&i<100) {
+		while((currentLine = lines.readLine())!=null) {
 			/*while( 27616>i){
 				currentLine = lines.readLine();
 				i++;

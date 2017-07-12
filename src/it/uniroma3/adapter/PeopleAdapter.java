@@ -44,11 +44,20 @@ public class PeopleAdapter extends Adapter {
 
 	}
 	
+<<<<<<< HEAD
 	public JSONObject getImages(String idPerson) throws JSONException{
 		checkRequestRate();
 		String url= resourcePath+idPerson+"/images";
 		return this.client.get(url);
 
+=======
+	
+	public JSONObject getMoviecredits(String id_credit){
+		checkRequestRate();
+		String url= resourcePath+id_credit;
+		JSONObject creditPerson = this.client.get(url,"movie_credits");
+		return creditPerson;
+>>>>>>> 556987df88f6c8395d151191151edc5bcc65292d
 	}
 
 }
