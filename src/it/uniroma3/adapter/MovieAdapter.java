@@ -4,7 +4,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import it.uniroma3.model.Movie;
+import it.uniroma3.utility.Movie;
 
 public class MovieAdapter  extends Adapter{
 	private String resourcePath="/movie/";

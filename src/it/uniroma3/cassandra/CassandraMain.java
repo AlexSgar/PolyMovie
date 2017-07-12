@@ -1,4 +1,4 @@
-package it.uniroma3.populater;
+package it.uniroma3.cassandra;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -26,7 +26,7 @@ import com.datastax.driver.core.Session;
 import com.datastax.driver.core.exceptions.AlreadyExistsException;
 import com.datastax.driver.core.exceptions.InvalidQueryException;
 
-public class CassandraPopulater {
+public class CassandraMain {
 	private Session session;
 	private Cluster cluster;
 	private  MovieAdapter mvAdapter;
@@ -35,7 +35,7 @@ public class CassandraPopulater {
 	private BufferedReader lines ;
 
 
-	public CassandraPopulater() throws FileNotFoundException {
+	public CassandraMain() throws FileNotFoundException {
 		mvAdapter = new MovieAdapter();
 		pplAdapter= new PeopleAdapter();
 		input = new FileReader("ml-latest/links_clear.csv");

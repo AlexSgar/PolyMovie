@@ -1,4 +1,4 @@
-package it.uniroma3.utility;
+package it.uniroma3.tmdb;
 
 import java.net.*;
 import java.io.*;

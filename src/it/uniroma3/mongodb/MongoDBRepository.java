@@ -1,6 +1,7 @@
-package it.uniroma3.utility;
+package it.uniroma3.mongodb;
 
 import java.io.BufferedReader;
+
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Date;
@@ -12,13 +13,14 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.mongodb.MongoClient;
+import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.MongoDatabase;
-
+import static com.mongodb.client.model.Filters.*;
 import it.uniroma3.adapter.MovieAdapter;
 
-public class MongoDBAdapter{
+public class MongoDBRepository{
 
 	private MongoClient mongoClient;
 	private MovieAdapter movieAdapter;
@@ -26,20 +28,62 @@ public class MongoDBAdapter{
 	private MongoCollection<Document> movies;
 	private MongoCollection<Document> moviesKeywords;
 
-	public MongoDBAdapter (){
+	public MongoDBRepository (){
 		this.mongoClient = new MongoClient();  //use default ("localhost" , 27017)
 		this.movieAdapter = new MovieAdapter();
+		this.mongoDatabase = this.mongoClient.getDatabase("tmdb");
+	}
+	
+	
+	
+	public Iterable<Document> getMovies(){
+		FindIterable<Document> movies = this.mongoDatabase.getCollection("movies").find();
+		return movies;
+	}
+	
+	
+	public Document getMovie(Integer id_movie){
+		Document movie = this.mongoDatabase.getCollection("movies").find(eq("_id",id_movie)).first();
+		return movie;
+	}
+	
+	public Document getMovieKeywords(int id_movie){
+		Document keywords = this.mongoDatabase.getCollection("movieKeywords").find(eq("id_movie",id_movie)).first();
+		return keywords;
 	}
 
-	public static void main(String[] args) throws IOException{
-
-		MongoDBAdapter mongoDBAdapter = new MongoDBAdapter();
-		//mongoDBAdapter.deleteCollection("movies");
-		//mongoDBAdapter.deleteCollection("movieKeywords");
-		//mongoDBAdapter.populateMoviesAndMoviesKeywords();
-		//mongoDBAdapter.printElements();
-
+	private void insertMovies(List<Document> moviesToAdd){
+		movies.insertMany(moviesToAdd);
 	}
+
+	private void insertMoviesKeywords(List<Document> moviesKeywordsToAdd){
+		moviesKeywords.insertMany(moviesKeywordsToAdd);
+	}
+
+
+	public void printElements(){
+		MongoCollection<Document> movies = this.mongoDatabase.getCollection("movies");
+
+		System.out.println(movies.count());
+
+		MongoCursor<Document> cursor = movies.find().iterator();
+
+		try{
+			while(cursor.hasNext()){
+				System.out.println(cursor.next().toJson());
+			}
+		}
+		finally{
+			cursor.close();
+		}
+	}
+
+	public void deleteCollection(String collectionName){
+		MongoCollection<Document> movies = this.mongoDatabase.getCollection(collectionName);
+		movies.deleteMany(new Document());
+	}
+	
+	
 
 	public void populateMoviesAndMoviesKeywords() throws IOException{
 
@@ -53,7 +97,6 @@ public class MongoDBAdapter{
 		int nOfLinesToSkip = 0;
 
 		BufferedReader br = new BufferedReader(new FileReader("ml-latest/links_clear.csv"));
-		this.mongoDatabase = this.mongoClient.getDatabase("tmdb");
 		this.movies = this.mongoDatabase.getCollection("movies");
 		this.moviesKeywords = this.mongoDatabase.getCollection("movieKeywords");
 
@@ -146,34 +189,4 @@ public class MongoDBAdapter{
 
 	}
 
-	private void insertMovies(List<Document> moviesToAdd){
-		movies.insertMany(moviesToAdd);
-	}
-
-	private void insertMoviesKeywords(List<Document> moviesKeywordsToAdd){
-		moviesKeywords.insertMany(moviesKeywordsToAdd);
-	}
-
-
-	public void printElements(){
-		MongoCollection<Document> movies = this.mongoDatabase.getCollection("movies");
-
-		System.out.println(movies.count());
-
-		MongoCursor<Document> cursor = movies.find().iterator();
-
-		try{
-			while(cursor.hasNext()){
-				System.out.println(cursor.next().toJson());
-			}
-		}
-		finally{
-			cursor.close();
-		}
-	}
-
-	public void deleteCollection(String collectionName){
-		MongoCollection<Document> movies = this.mongoDatabase.getCollection(collectionName);
-		movies.deleteMany(new Document());
-	}
 }

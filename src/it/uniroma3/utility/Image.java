@@ -1,4 +1,4 @@
-package it.uniroma3.model;
+package it.uniroma3.utility;
 
 
 public class Image implements Comparable<Image>{

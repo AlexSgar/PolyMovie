@@ -1,4 +1,4 @@
-package it.uniroma3.model;
+package it.uniroma3.utility;
 import org.json.JSONException;
 import org.json.JSONObject;
 

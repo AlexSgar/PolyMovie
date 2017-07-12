@@ -1,6 +1,6 @@
-package it.uniroma3.utility;
+package it.uniroma3.neo4j;
 import it.uniroma3.adapter.MovieAdapter;
-import it.uniroma3.model.Movie;
+import it.uniroma3.utility.Movie;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -16,7 +16,7 @@ import org.neo4j.driver.v1.*;
 
 import  static org.neo4j.driver.v1.Values.parameters;
 
-public class Neo4JAdapter {
+public class Neo4JRepository {
 
 
 	public static void main(String[] args) throws IOException, JSONException, InterruptedException {

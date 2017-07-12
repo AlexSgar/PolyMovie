@@ -1,8 +1,9 @@
-package it.uniroma3.utility;
+package it.uniroma3.redis;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -11,7 +12,9 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -19,28 +22,48 @@ import org.json.JSONObject;
 
 import it.uniroma3.adapter.MovieAdapter;
 import it.uniroma3.adapter.PeopleAdapter;
-import it.uniroma3.model.Image;
+import it.uniroma3.utility.Image;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.Pipeline;
 
-public class RedisAdapter {
+public class RedisRepository {
 
 	private MovieAdapter movieAdapter;
 	private Jedis jedis;
 	private PeopleAdapter peopleAdapter;
 
-	public RedisAdapter(){
+	public RedisRepository(){
 		this.movieAdapter = new MovieAdapter();
 		this.peopleAdapter = new PeopleAdapter();
 		this.jedis = new Jedis();//use default for connection
 	}
 	
-	public static void main(String[] args) throws IOException{
-		RedisAdapter ra = new RedisAdapter();
-		//ra.deleteDatabase();
-		//ra.populateMovieImagesAndTrailers();
-		ra.populateActorImages();
-	} 
+	
+	
+	public List<String> getMoviePosters(String id_movie){
+		List<String> posters = this.jedis.hgetAll("movieImages:"+id_movie)
+				.entrySet()
+				.stream()
+				.filter(e->e.getKey().contains("poster"))
+				.map(e->e.getValue())
+				.collect(Collectors.toList());
+		 return posters;
+		
+	}
+	
+	
+	public List<String> getMovieBackdrops(String id_movie){
+		List<String> backs = this.jedis.hgetAll("movieImages:"+id_movie)
+				.entrySet()
+				.stream()
+				.filter(e->e.getKey().contains("backdrop"))
+				.map(e->e.getValue())
+				.collect(Collectors.toList());
+		 return backs;
+		
+	}
+	
+	
 	
 	public void populateMovieImagesAndTrailers() throws IOException{
 		

@@ -1,18 +1,16 @@
-package it.uniroma3.utility;
+package it.uniroma3.cassandra;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
-import it.uniroma3.populater.CassandraPopulater;
 
+public class CassandraRepository {
 
-public class CassandraAdapter {
-
-	public CassandraAdapter() {
+	public CassandraRepository() {
 	}
 
 	public static void main(String args[]) throws IOException{
-		 CassandraPopulater client = new CassandraPopulater();
+		 CassandraMain client = new CassandraMain();
 		    client.connect("127.0.0.1");
 		    client.createSchema();
 		    client.populateLanguageRelated();

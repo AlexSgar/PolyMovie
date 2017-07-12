@@ -1,6 +1,6 @@
 package it.uniroma3.adapter;
 
-import it.uniroma3.utility.TMDBClient;
+import it.uniroma3.tmdb.TMDBClient;
 
 public abstract class Adapter {
 	protected TMDBClient client;

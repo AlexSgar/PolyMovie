@@ -1,4 +1,4 @@
-package it.uniroma3.populater;
+package it.uniroma3.postgres;
 
 import it.uniroma3.adapter.MovieAdapter;
 import it.uniroma3.adapter.PeopleAdapter;
@@ -27,7 +27,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 
-public class PostgressPopulater {
+public class PostgressMain {
 	private Set<String> actorsRetrieved;
 	private Set<String> showsRetrieved;
 	private MovieAdapter mvAd;
@@ -42,7 +42,7 @@ public class PostgressPopulater {
 	final  String password="";
 
 
-	public PostgressPopulater(String url, String dbName) throws FileNotFoundException, SQLException {
+	public PostgressMain(String url, String dbName) throws FileNotFoundException, SQLException {
 		actorsRetrieved=new HashSet<String>();
 		showsRetrieved=new HashSet<String>();
 		mvAd= new MovieAdapter();
