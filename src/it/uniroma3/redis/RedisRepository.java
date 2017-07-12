@@ -3,16 +3,10 @@ package it.uniroma3.redis;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
@@ -37,8 +31,7 @@ public class RedisRepository {
 		this.peopleAdapter = new PeopleAdapter();
 		this.jedis = new Jedis();//use default for connection
 	}
-	
-	
+
 	
 	public List<String> getMoviePosters(String id_movie){
 		List<String> posters = this.jedis.hgetAll("movieImages:"+id_movie)
@@ -51,7 +44,6 @@ public class RedisRepository {
 		
 	}
 	
-	
 	public List<String> getMovieBackdrops(String id_movie){
 		List<String> backs = this.jedis.hgetAll("movieImages:"+id_movie)
 				.entrySet()
@@ -63,19 +55,21 @@ public class RedisRepository {
 		
 	}
 	
-	
+	private void deleteDatabase(){
+		this.jedis.flushDB();
+	}
 	
 	public void populateMovieImagesAndTrailers() throws IOException{
 		
 		long startTime = System.currentTimeMillis();
 		System.out.println("started at: "+new Date(startTime));
 
-		int maxEntriesToInsert = 50000;
+		int maxEntriesToInsert = 50000;//max entries in link.csv is ~40K
 		int nOfCurrentGoodRequest = 0;
 		int nOfInsertedEntries = 0;
-		int nOfMaxImages = 5;
-		int nOfLinesToSkip = 0;
-		int batchSize = 19;
+		int nOfMaxImages = 5;//n of max images stored for each movie image type (poster|backdrop)
+		int nOfLinesToSkip = 0;//n of line to skip if some during exception goes wrong
+		int batchSize = 19;//n of item for batch insert,19 cause of API requests limitations
 		
 		BufferedReader br = new BufferedReader(new FileReader("ml-latest/links_clear.csv"));
 		String baseImageUrl= "https://image.tmdb.org/t/p/original";
@@ -85,6 +79,7 @@ public class RedisRepository {
 		String currentLine = "";
 		int currentLineNumber=0;
 
+		//code for skipping some lines
 		while(nOfLinesToSkip >0){
 			br.readLine();
 			currentLineNumber++;
@@ -118,6 +113,7 @@ public class RedisRepository {
 					moviePosters = movieImages.getJSONArray("posters");
 					movieVideos = (movieJson.getJSONObject("videos")).getJSONArray("results");
 					
+					//store best 5 images per each movie image type (images were ordered by API)
 					for(int i=0;i<nOfMaxImages;i++){
 						try{
 							currentBackdrop = (JSONObject)movieBackdrops.get(i);
@@ -209,12 +205,12 @@ public class RedisRepository {
 		long startTime = System.currentTimeMillis();
 		System.out.println("started at: "+new Date(startTime));
 
-		int maxEntriesToInsert = 200000;
+		int maxEntriesToInsert = 200000;//max entries in lista_actors.txt is ~180K
 		int nOfCurrentGoodRequest = 0;
 		int nOfInsertedEntries = 0;
-		int nOfMaxImages = 5;
-		int nOfLinesToSkip = 0;
-		int batchSize = 19;
+		int nOfMaxImages = 5;//n of max images stored for each actor
+		int nOfLinesToSkip = 0;//n of line to skip if some during exception goes wrong
+		int batchSize = 19; //n of item for batch insert,19 cause of API requests limitations
 		
 		BufferedReader br = new BufferedReader(new FileReader("ml-latest/lista_actors.txt"));
 		String baseImageUrl= "https://image.tmdb.org/t/p/original";
@@ -223,6 +219,7 @@ public class RedisRepository {
 		String currentLine = "";
 		int currentLineNumber=0;
 
+		//code for skipping some lines
 		while(nOfLinesToSkip >0){
 			br.readLine();
 			currentLineNumber++;
@@ -276,10 +273,6 @@ public class RedisRepository {
 						actorImagesToAdd.clear();
 					}
 					
-					if(currentLineNumber % 100 ==0){
-						System.out.println("Current line: "+currentLineNumber);
-					}
-					
 					if(nOfCurrentGoodRequest == batchSize){
 						p.sync();
 						nOfInsertedEntries+=nOfCurrentGoodRequest;
@@ -287,6 +280,10 @@ public class RedisRepository {
 						actorImagesToAdd.clear();
 						System.out.println("Insert entries,total " + nOfInsertedEntries);
 						System.out.println("Actor with no images " + nOfActorWithNoImages);
+					}
+					
+					if(currentLineNumber % 100 ==0){
+						System.out.println("Current line: "+currentLineNumber +", current actorId: " + actorId);
 					}
 					
 					if (currentLineNumber == maxEntriesToInsert){
@@ -331,9 +328,5 @@ public class RedisRepository {
 		long endTime = System.currentTimeMillis();
 		System.out.println("end time: "+new Date(endTime));
 		System.out.println("ended in: "+((endTime-startTime)/1000)/60.0+" minutes");
-	}
-	
-	private void deleteDatabase(){
-		this.jedis.flushDB();
 	}
 }

@@ -1,7 +1,6 @@
 package it.uniroma3.redis;
 
 import java.io.IOException;
-import java.util.LinkedList;
 
 public class RedisMain {
 
