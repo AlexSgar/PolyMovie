@@ -1,6 +1,7 @@
 package it.uniroma3.redis;
 
 import java.io.IOException;
+import java.util.LinkedList;
 
 public class RedisMain {
 
@@ -13,9 +14,8 @@ public class RedisMain {
 		
 		//movieImages.forEach(e->System.out.println(e));
 		//ra.deleteDatabase();
-		ra.populateMovieImagesAndTrailers();
+		//ra.populateMovieImagesAndTrailers();
 		//ra.populateActorImages();
-		//ra.getActorImages();
 	} 
 	
 	

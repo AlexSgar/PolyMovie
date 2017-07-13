@@ -1,0 +1,36 @@
+body {
+	margin: 0;
+	padding: 0;
+	height: 100%;
+}
+/****container default is 1170px*/
+#m_header {
+	height: 100px;
+	/*width: 1000px;*/
+	margin: 0 auto;
+	background-color: #999999;
+}
+ 
+#m_menu_top {
+	height: 55px;
+	/*width: 1000px;*/
+	margin: 0 auto;
+	background-color: #EDF1F4;
+}
+ 
+#m_container {
+	/*width: 1000px;*/
+	margin: 0 auto;
+	background-color: #ccc;
+}
+ 
+#content {
+	min-height: 300px;
+}
+ 
+#m_footer {
+	height: 80px;
+	/*width: 1000px;*/
+	margin: 0 auto;
+	background-color: #999999;
+}

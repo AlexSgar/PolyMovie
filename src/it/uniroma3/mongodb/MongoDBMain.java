@@ -9,13 +9,12 @@ public class MongoDBMain {
 	public MongoDBMain() {
 		// TODO Auto-generated constructor stub
 	}
-	
-	
+
+
 
 	public static void main(String[] args) throws IOException{
 
 		MongoDBRepository mongoDBAdapter = new MongoDBRepository();
-
 		//mongoDBAdapter.deleteCollection("movies");
 		//mongoDBAdapter.deleteCollection("movieKeywords");
 		//mongoDBAdapter.populateMoviesAndMoviesKeywords();

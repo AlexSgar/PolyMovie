@@ -9,20 +9,22 @@ import java.sql.Statement;
 import org.json.JSONException;
 import org.postgresql.util.PSQLException;
 
-public class PostrgeSQLRepository {
+public class PostrgesMain {
 
 
 	public static void main(String[] args) throws SQLException, IOException, JSONException{
 		String url = "jdbc:postgresql://localhost/";
 		String dbName="moviedb";
-		PostgressMain populater = new PostgressMain(url, dbName);
+		PostgresRepository populater = new PostgresRepository(url, dbName);
 
 
 		System.out.println("Creazione Database e tabelle in corso...");
-		try{
+		
+		/*
+		 try{
 			populater.buildDataBase(url, dbName);
-		}
-		catch(PSQLException p){System.out.println("database gia esistente");}
+		}catch(PSQLException p){System.out.println("database gia esistente");}
+		 */
 		//populater.populateDB();
 
 		//populater.fixError();

@@ -1,7 +1,6 @@
 package it.uniroma3.mongodb;
 
 import java.io.BufferedReader;
-
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Date;
@@ -12,11 +11,13 @@ import org.bson.Document;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.mongodb.BasicDBObject;
 import com.mongodb.MongoClient;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.MongoDatabase;
+
 import static com.mongodb.client.model.Filters.*;
 import it.uniroma3.adapter.MovieAdapter;
 
@@ -36,8 +37,9 @@ public class MongoDBRepository{
 	
 	
 	
-	public Iterable<Document> getMovies(){
-		FindIterable<Document> movies = this.mongoDatabase.getCollection("movies").find();
+	public Iterable<Document> getMovies(String param){
+		FindIterable<Document> movies = this.mongoDatabase.getCollection("movies").find()
+				.sort(new BasicDBObject(param,-1)).limit(100);
 		return movies;
 	}
 	

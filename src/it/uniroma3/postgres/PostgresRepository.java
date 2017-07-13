@@ -3,12 +3,16 @@ package it.uniroma3.postgres;
 import it.uniroma3.adapter.MovieAdapter;
 import it.uniroma3.adapter.PeopleAdapter;
 import it.uniroma3.adapter.TVAdapter;
+import it.uniroma3.model.Movie;
 import it.uniroma3.utility.Pair;
+import it.uniroma3.model.*;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -19,6 +23,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 
 import javax.print.DocFlavor;
 
@@ -27,7 +32,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 
-public class PostgressMain {
+public class PostgresRepository {
 	private Set<String> actorsRetrieved;
 	private Set<String> showsRetrieved;
 	private MovieAdapter mvAd;
@@ -42,7 +47,7 @@ public class PostgressMain {
 	final  String password="";
 
 
-	public PostgressMain(String url, String dbName) throws FileNotFoundException, SQLException {
+	public PostgresRepository(String url, String dbName) throws FileNotFoundException, SQLException {
 		actorsRetrieved=new HashSet<String>();
 		showsRetrieved=new HashSet<String>();
 		mvAd= new MovieAdapter();
@@ -55,10 +60,19 @@ public class PostgressMain {
 	}
 
 
+
+	public PostgresRepository(String dbUrl2) {
+		this.dbUrl=dbUrl2;
+	}
+
+
+
 	public Connection getConnection(String url) throws SQLException{
 		Connection conn = DriverManager.getConnection(url,username,password);
 		return conn;
 	}
+
+
 
 
 	public void buildDataBase(String url, String dbName) throws SQLException {
@@ -106,13 +120,13 @@ public class PostgressMain {
 	 */
 	public void populateActorsPart() throws SQLException{
 
-		retrieveActorID();
+		retrieveActorsID();
 		conn=this.getConnection(dbUrl);
 		System.out.println("attori presi"+this.actorsRetrieved.size());
 
 		try {
 			populateActorTables();
-			
+
 		} catch (SQLException | JSONException | IOException e) {
 			e.printStackTrace();}
 		conn.close();
@@ -159,34 +173,6 @@ public class PostgressMain {
 		conn.close();
 
 
-
-	}
-
-
-	/*
-	 * Metodi privati per prendere dal DB gli attori e le serie presenti
-	 */
-
-	private void retrieveActorID() throws SQLException {
-		conn=this.getConnection(dbUrl);
-		Statement stmt = null;
-		String query = " select distinct id_actor  from credits order by id_actor";
-		stmt = conn.createStatement();
-		ResultSet rs = stmt.executeQuery(query);
-		while (rs.next()) {
-			this.actorsRetrieved.add(rs.getString("id_actor"));}
-		conn.close();
-	}
-
-	private void retrieveTVID() throws SQLException {
-		conn=this.getConnection(dbUrl);
-		Statement stmt = null;
-		String query = "select distinct id_serie  from tvroles";
-		stmt = conn.createStatement();
-		ResultSet rs = stmt.executeQuery(query);
-		while (rs.next()) {
-			this.showsRetrieved.add(rs.getString("id_serie"));}
-		conn.close();
 
 	}
 
@@ -353,46 +339,6 @@ public class PostgressMain {
 
 	}
 
-	/*
-	public void fixError() throws SQLException, IOException, JSONException{
-		conn= this.getConnection(dbUrl);
-		input = new FileReader("ml-latest/movieDaRifare.txt");
-		lines = new BufferedReader(input);
-		String currentLine="";
-		conn.setAutoCommit(false);
-		String q2="INSERT INTO Credits(id_credit,id_cast,id_actor,character)"+ "VALUES(?,?,?,?) ON CONFLICT DO NOTHING";
-		PreparedStatement ps2 = conn.prepareStatement(q2);
-		int i=0;
-		while((currentLine = lines.readLine())!=null) {
-
-			JSONArray credits = mvAd.getMovieCredits(currentLine);
-			for(int k=0; k<credits.length(); k++){
-				JSONObject jsonC = (JSONObject)credits.get(k);
-				String castid = jsonC.getString("cast_id");
-				if(castid.equals("1011")||castid.equals("1009")){
-					String idCredit = jsonC.getString("credit_id");
-					String id_actor = jsonC.getString("id");
-					ps2.setString(1,idCredit);
-					ps2.setString(2,castid);
-					ps2.setString(3,id_actor);
-					ps2.setString(4,jsonC.getString("character"));
-					ps2.addBatch();
-					i++;
-				}
-			}
-		}
-
-		ps2.executeBatch();
-		conn.commit();
-		System.out.println(i);
-		conn.close();
-
-
-
-
-
-	}*/
-
 
 	private void populateTvShowTables() throws SQLException, JSONException {
 
@@ -438,9 +384,203 @@ public class PostgressMain {
 		}
 		ps5.executeBatch();
 		conn.commit();
+	}
 
+
+
+
+
+	public String retrieveActorID(String attore) throws SQLException {
+		Connection conn= this.getConnection(this.dbUrl);
+		Statement stmt = null;
+		String query = " select * from actors where id_actor='"+attore+"'";
+		stmt = conn.createStatement();
+		ResultSet rs = stmt.executeQuery(query);
+		if (rs.next()) {
+			return (rs.getString("name"));
+		}
+		conn.close();
+		return " non trovato";
 
 	}
+
+
+
+	/*
+	 * Metodi privati per prendere dal DB gli attori e le serie presenti
+	 */
+
+	public LinkedList<String> retrieveActorsID() throws SQLException {
+		this.actorsRetrieved=new TreeSet<String>();
+		conn=this.getConnection(dbUrl);
+		Statement stmt = null;
+		String query = " select distinct id_actor from credits order by id_actor";
+		stmt = conn.createStatement();
+		ResultSet rs = stmt.executeQuery(query);
+		while (rs.next()) {
+			this.actorsRetrieved.add(rs.getString("id_actor"));}
+		conn.close();
+
+		return new LinkedList<String>(this.actorsRetrieved);
+
+	}
+
+	private void retrieveTVID() throws SQLException {
+		conn=this.getConnection(dbUrl);
+		Statement stmt = null;
+		String query = "select distinct id_serie  from tvroles";
+		stmt = conn.createStatement();
+		ResultSet rs = stmt.executeQuery(query);
+		while (rs.next()) {
+			this.showsRetrieved.add(rs.getString("id_serie"));}
+		conn.close();
+
+	}
+
+
+
+	public List<String> retrieveMovieID() throws SQLException {
+		Set<String> movieRetrived=new HashSet<String>();
+		Connection conn= this.getConnection(this.dbUrl);
+		Statement stmt = null;
+		String query = " select distinct id_movie from moviecredits order by id_movie";
+		stmt = conn.createStatement();
+		ResultSet rs = stmt.executeQuery(query);
+		while (rs.next()) {
+			movieRetrived.add(rs.getString("id_movie"));}
+		conn.close();
+		System.out.println(movieRetrived.size());
+		return new LinkedList<String>(movieRetrived);
+	}
+
+
+
+
+
+	public List<String> retrieveActors4Movie(String id_movie) throws SQLException {
+		List<String> actorsRetrieved=new LinkedList<String>();
+		Connection conn= this.getConnection(this.dbUrl);
+		Statement stmt = null;
+		String query = "select distinct id_actor  from credits c join moviecredits"
+				+ " m on m.id_credit=c.id_credit where m.id_movie='"+id_movie+"'";
+		stmt = conn.createStatement();
+		ResultSet rs= stmt.executeQuery(query);
+		while (rs.next()) {
+			actorsRetrieved.add(rs.getString("id_actor"));}
+		conn.close();
+
+		return actorsRetrieved;
+
+	}
+
+
+
+	public List<String> retrieveMovies4Actor(String id_actor) throws SQLException {
+		List<String> movieRetrived=new LinkedList<String>();
+		Connection conn= this.getConnection(this.dbUrl);
+		Statement stmt = null;
+		String query = "select distinct id_movie from credits c join moviecredits"
+				+ " m on m.id_credit=c.id_credit where c.id_actor='"+id_actor+"'";
+		stmt = conn.createStatement();
+		ResultSet rs= stmt.executeQuery(query);
+		while (rs.next()) {
+			movieRetrived.add(rs.getString("id_movie"));}
+		conn.close();
+
+		return movieRetrived;
+
+	}
+
+
+
+
+	public List<String> retrieveTvShow4Actor(String id_actor) throws SQLException {
+		List<String> tvShowRetrived=new LinkedList<String>();
+		Connection conn= this.getConnection(this.dbUrl);
+		Statement stmt = null;
+		String query = "select distinct ts.id_serie,ts.name  from tvshow ts join "
+				+ "tvroles tr on tr.id_serie=ts.id_serie where id_actor='"+id_actor+"'";
+		stmt = conn.createStatement();
+		ResultSet rs= stmt.executeQuery(query);
+		while (rs.next()) {
+			tvShowRetrived.add(rs.getString("name"));}
+		conn.close();
+
+		return tvShowRetrived;
+
+	}
+
+
+
+
+	public List<TV> retrieveTvShow() throws SQLException {
+		List<TV> tvShowRetrived=new LinkedList<TV>();
+		Connection conn= this.getConnection(this.dbUrl);
+		Statement stmt = null;
+		String query = "select distinct * from tvshow ts order by popularity desc  limit 100";
+		stmt = conn.createStatement();
+		ResultSet rs= stmt.executeQuery(query);
+		while (rs.next()) {
+			TV tv=new TV();
+			tv.setId(rs.getString("id_serie"));
+			tv.setTitle(rs.getString("name"));
+			tv.setOverview("");
+			String popularity = rs.getString("popularity");
+			tv.setPopularity(""+this.round(new Double(popularity), 2));
+			String path = rs.getString("poster_path");
+			if(path.equals("null")){
+				tv.setPoster("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRIjBLiqDUUSRDCtHnCMiAuaa1X54cT_Qt7P2pY32gwaoK_ix7R");
+			}else
+				tv.setPoster("https://image.tmdb.org/t/p/w500"+path);
+			tv.setStatus(rs.getString("status"));
+			tv.setOriginalLang(rs.getString("original_language"));
+			String vote = rs.getString("vote_average");
+			tv.setVoteAvg(""+this.round(new Double(vote), 2));
+			String episodes = rs.getString("episodes_number");
+			if(episodes.equals("-1")){
+				episodes="Not Available";
+			}
+			tv.setEpisodes(episodes);
+			tv.setSeasons(rs.getString("seasons_number"));
+			tvShowRetrived.add(tv);
+		}
+		conn.close();
+
+		return tvShowRetrived;
+	}
+
+
+
+	public List<String> retrieveActors4TV(String id_serie) throws SQLException {
+		LinkedList<String> actorsRetrieved=new LinkedList<String>();
+		Connection conn= this.getConnection(this.dbUrl);
+		Statement stmt = null;
+		String query = "select distinct a.id_actor  from actors a join tvroles"
+				+ " tv on a.id_actor=tv.id_actor where tv.id_serie='"+id_serie+"'";
+		stmt = conn.createStatement();
+		ResultSet rs= stmt.executeQuery(query);
+		while (rs.next()) {
+			actorsRetrieved.add(rs.getString("id_actor"));}
+		conn.close();
+
+		return  actorsRetrieved;
+
+	}
+
+
+
+
+	private double round(double value, int places) {
+		if (places < 0) throw new IllegalArgumentException();
+
+		BigDecimal bd = new BigDecimal(value);
+		bd = bd.setScale(places, RoundingMode.HALF_UP);
+		return bd.doubleValue();
+	}
+
+
+
+
 
 
 }
