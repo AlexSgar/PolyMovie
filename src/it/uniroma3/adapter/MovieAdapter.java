@@ -29,7 +29,7 @@ public class MovieAdapter  extends Adapter{
 	public JSONObject getMovieAppendImagesAndVideos(String idMovie){
 		checkRequestRate();
 		String url= resourcePath+idMovie;
-		return this.client.get(url,"images,videos");
+		return this.client.get(url,"images,videos&language=en");
 	}
 	
 	public JSONObject getMovieKeywords(String idMovie){

@@ -13,8 +13,9 @@ public class RedisMain {
 		
 		//movieImages.forEach(e->System.out.println(e));
 		//ra.deleteDatabase();
-		//ra.populateMovieImagesAndTrailers();
+		ra.populateMovieImagesAndTrailers();
 		//ra.populateActorImages();
+		//ra.getActorImages();
 	} 
 	
 	

@@ -1,6 +1,7 @@
 package it.uniroma3.redis;
 
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Date;
@@ -52,6 +53,11 @@ public class RedisRepository {
 				.map(e->e.getValue())
 				.collect(Collectors.toList());
 		 return backs;
+		
+	}
+	public List<String> getActorImages(String id_actor) throws IOException {
+		
+		return (List<String>)this.jedis.hgetAll("actorImages:"+id_actor).values();
 		
 	}
 	
@@ -117,14 +123,14 @@ public class RedisRepository {
 					for(int i=0;i<nOfMaxImages;i++){
 						try{
 							currentBackdrop = (JSONObject)movieBackdrops.get(i);
-							movieImageToAdd.put("backdrop#" + i,baseImageUrl + currentBackdrop.getString("file_path"));
+							movieImageToAdd.put("backdrop#" + (i+1), baseImageUrl + currentBackdrop.getString("file_path"));
 						}
 						catch(JSONException e ){
 							//e.printStackTrace();
 						}
 						try{
 							currentPoster = (JSONObject)moviePosters.get(i);
-							movieImageToAdd.put("poster#" + i, baseImageUrl + currentPoster.getString("file_path"));
+							movieImageToAdd.put("poster#" + (i+1), baseImageUrl + currentPoster.getString("file_path"));
 						}
 						catch(JSONException e ){
 							//e.printStackTrace();
@@ -139,8 +145,8 @@ public class RedisRepository {
 					for(int j=0;j<movieVideos.length();j++){
 						currentVideo = (JSONObject)movieVideos.get(j);
 						if(currentVideo.getString("site").toLowerCase().equals("youtube") && currentVideo.getString("type").toLowerCase().equals("trailer")){
-							movieTrailersToAdd.put("name#" + j,currentVideo.getString("name"));
-							movieTrailersToAdd.put("link#"  + j,baseTrailerUrl + currentVideo.getString("key"));
+							movieTrailersToAdd.put("name#" + (j+1), currentVideo.getString("name"));
+							movieTrailersToAdd.put("link#"  + (j+1), baseTrailerUrl + currentVideo.getString("key"));
 						}
 						
 					}
@@ -166,7 +172,7 @@ public class RedisRepository {
 					System.out.println("Error TMDBClient: movie doesn't exists,id: "+ movieId);
 				}
 			}
-			if(movieImageToAdd.size()>0){
+			if(movieImageToAdd.size()>0 || movieTrailersToAdd.size()>0){
 				p.sync();
 				nOfInsertedEntries+=nOfCurrentGoodRequest;
 				movieImageToAdd.clear();

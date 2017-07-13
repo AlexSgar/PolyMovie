@@ -61,7 +61,7 @@ public class MongoDBRepository{
 	}
 
 
-	public void printElements(){
+	private void printElements(){
 		MongoCollection<Document> movies = this.mongoDatabase.getCollection("movies");
 
 		System.out.println(movies.count());
@@ -180,6 +180,7 @@ public class MongoDBRepository{
 		}
 		finally{
 			br.close();
+			this.mongoClient.close();
 			System.out.println("Read "+currentLineNumber+" lines from file");
 		}
 
