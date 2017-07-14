@@ -1,378 +1,399 @@
-.container { 
-    width: 1000px; /* pick whatever width you want */
-}
-.container .child {
-    width: 100%;
-    padding-top: 75%;
+.container {
+	width: 1000px; /* pick whatever width you want */
 }
 
+.container .child {
+	width: 100%;
+	padding-top: 75%;
+}
+
+div.item.poster div.image_content img v2 {
+	width: 236px;
+	height: 328px;
+}
+
+.btn-circle {
+	
+    text-align: center;
+    padding: 6px 0;
+    font-size: 12px;
+    line-height: 1.42;
+    border-radius: 24px;
+    padding: 6px 0px;
+    border-width: 2px;
+    border-style: solid;
+    background-color: white;
+    border-color: #34495e;
+    width: 100;
+    margin-right: 10px;
+}
 
 div.item {
-  float: left;
-  margin-bottom: 24px;
-  color: #000;
+	float: left;
+	margin-bottom: 24px;
+	color: #000;
 }
 
 .card {
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  background-color: #fff;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+	background-color: #fff;
 }
 
 div.item.card.backdrop {
-  margin-bottom: 30px;
+	margin-bottom: 30px;
 }
 
 div.item.poster.card {
-  margin-bottom: 34px;
-  display: flex;
-  align-items: center;
+	margin-bottom: 34px;
+	display: flex;
+	align-items: center;
 }
 
 div.item.card:nth-child(even) {
-  margin-left: 34px;
+	margin-left: 34px;
 }
 
 div.item.card:nth-child(odd) {
-  clear: left;
+	clear: left;
 }
 
 div.item p {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  padding: 0;
-  width: 100%;
-  line-height: 1.2em;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	padding: 0;
+	width: 100%;
+	line-height: 1.2em;
 }
 
 div.item p:last-of-type {
-  margin-bottom: 0;
+	margin-bottom: 0;
 }
 
 div.item p:nth-of-type(1) {
-  padding-bottom: 0;
-  margin-bottom: 2px;
-  margin-top: 4px;
+	padding-bottom: 0;
+	margin-bottom: 2px;
+	margin-top: 4px;
 }
 
 div.item.card span.popularity_rank_value {
-  text-align: left;
+	text-align: left;
 }
 
 div.item.card span.popularity_rank_value h3 {
-  font-size: 1em;
+	font-size: 1em;
 }
 
 div.item.card span.popularity_rank_value p {
-  text-align: left;
-  font-size: 0.9em;
-  margin: 0 !important;
-  padding: 0 !important;
+	text-align: left;
+	font-size: 0.9em;
+	margin: 0 !important;
+	padding: 0 !important;
 }
 
 div.item.poster.card div.info {
-  width: 298px;
-  height: 278px;
-  position: relative;
-  box-sizing: border-box;
-  padding: 10px 16px 16px 16px;
+	width: 298px;
+	height: 278px;
+	position: relative;
+	box-sizing: border-box;
+	padding: 10px 16px 16px 16px;
 }
 
 div.item.card p.overview {
-  word-wrap: break-word;
-  white-space: normal;
-  color: #4d4d4d;
-  font-size: 0.9em;
-  line-height: 1.2em;
-  margin-top: 30px;
-  max-height: 133px;
-  overflow:hidden;
-  text-overflow:ellipsis;
+	word-wrap: break-word;
+	white-space: normal;
+	color: #4d4d4d;
+	font-size: 0.9em;
+	line-height: 1.2em;
+	margin-top: 30px;
+	max-height: 115px;
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
 
 div.item.card p.view_more {
-    
-    width: 267px
-  border-top: 1px solid #e3e3e3;
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  padding: 16px;
+	border-top: 1px solid #e3e3e3;
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	padding: 16px;
 }
 
 div.item.card p.view_more a {
-  font-size: 0.9em;
-  font-weight: 400;
+	font-size: 0.9em;
+	font-weight: 400;
 }
 
 div.item p.meta {
-  padding-top: 0;
-  font-size: 0.9em;
+	padding-top: 0;
+	font-size: 0.9em;
 }
 
 div.item p a, div.item a {
-  color: #000;
-  font-weight: 400;
+	color: #000;
+	font-weight: 400;
 }
 
-div.item.card.poster p > a.title {
-  line-height: 24px;
+div.item.card.poster p>a.title {
+	line-height: 24px;
 }
 
 div.item p a.title {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  display: inline-block;
-  padding-right: 20px;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	display: inline-block;
+	padding-right: 20px;
 }
 
 div.item p a {
-  font-size: 1.0em;
+	font-size: 1.0em;
 }
 
 div.item.card p a, div.item.card span.vote_average {
-  font-size: 1.1em;
-  line-height: 24px;
+	font-size: 1.1em;
+	line-height: 24px;
 }
 
 div.item p a:hover, div.item a:hover {
-  text-decoration: none;
+	text-decoration: none;
 }
 
 div.item.poster {
-  width: 185px;
+	width: 185px;
 }
 
 div.item.backdrop {
-  width: 445px;
+	width: 445px;
 }
 
 div.item.mini.backdrop {
-  width: 250px;
-  margin: 0 15px 0 0;
+	width: 250px;
+	margin: 0 15px 0 0;
 }
 
 div.item.mini.backdrop:last-child {
-  margin-right: 0;
+	margin-right: 0;
 }
 
 div.item.card {
-  width: 483px;
-  background-color: #fff;
-  box-sizing: border-box;
+	width: 483px;
+	background-color: #fff;
+	box-sizing: border-box;
 }
 
 div.item.backdrop.card2 div.content, div.item.poster div.content {
-  padding: 6px 4px;
+	padding: 6px 4px;
 }
 
-div.item div.content > div, div.item p.flex {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+div.item div.content>div, div.item p.flex {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
 }
 
 div.item.backdrop div.content {
-  padding: 4px 12px 10px 12px;
+	padding: 4px 12px 10px 12px;
 }
 
 div.image_content {
-  overflow: hidden;
+	overflow: hidden;
 }
 
 div.item.mini.backdrop div.image_content {
-  width: 250px;
-  height: 141px;
+	width: 250px;
+	height: 141px;
 }
 
 div.item.poster div.image_content, div.item.backdrop div.image_content {
-  height: 278px;
-  line-height: 0;
+	height: 278px;
+	line-height: 0;
 }
 
 div.no_image_holder.w500_and_h281 {
-  height: 278px;
-  position: relative;
-  left: -25px;
+	height: 278px;
+	position: relative;
+	left: -25px;
 }
 
 div.item.card.backdrop div.no_image_holder.w500_and_h281 {
-  left: -9px;
+	left: -9px;
 }
 
 div.item.poster.card div.image_content {
-  width: 185px;
+	width: 185px;
 }
 
 div.item.poster div.image_content img {
-  width: 185px;
-  height: 278px;
+	width: 185px;
+	height: 278px;
 }
 
 div.item.backdrop div.image_content img {
-  position: relative;
-  top: 0;
-  left: -25px;
-  width: 500px;
-  height: 278px;
+	position: relative;
+	top: 0;
+	left: -25px;
+	width: 500px;
+	height: 278px;
 }
 
 div.item.mini.backdrop div.image_content img {
-  top: 0;
-  left: 0;
-  width: 250px;
-  height: 141px;
-  border-radius: 4px;
+	top: 0;
+	left: 0;
+	width: 250px;
+	height: 141px;
+	border-radius: 4px;
 }
 
 div.item.backdrop.card.backdrop div.image_content img {
-  left: -8px;
+	left: -8px;
 }
 
 div.image_content a {
-  width: 100%;
-  height: 100%;
-  display: block;
-  line-height: 0;
+	width: 100%;
+	height: 100%;
+	display: block;
+	line-height: 0;
 }
 
 div.image_content a:hover div.meta {
-  visibility: visible;
+	visibility: visible;
 }
 
 div.image_content a div.meta {
-  visibility: hidden;
-  background-color: rgba(255,255,255,0.9);
-  position: relative;
-  top: -40px;
-  left: 0;
-  height: 40px;
-  width: 100%;
-  z-index: 1;
-  box-sizing: border-box;
-  padding-left: 10px;
-  padding-right: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+	visibility: hidden;
+	background-color: rgba(255, 255, 255, 0.9);
+	position: relative;
+	top: -40px;
+	left: 0;
+	height: 40px;
+	width: 100%;
+	z-index: 1;
+	box-sizing: border-box;
+	padding-left: 10px;
+	padding-right: 10px;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
 }
 
 div.item.card span.release_date {
-  font-size: 1.0em;
-  padding-right: 10px;
-  display: inline-flex;
-  align-items: center;
+	font-size: 1.0em;
+	padding-right: 10px;
+	display: inline-flex;
+	align-items: center;
 }
 
 div.item.card span.release_date span.glyphicons {
-  top: 0;
-  padding-right: 4px;
-  padding-left: 0;
-  line-height: 0;
+	top: 0;
+	padding-right: 4px;
+	padding-left: 0;
+	line-height: 0;
 }
 
 div.item.backdrop.card span.release_date {
-  padding-right: 0;
-  padding-left: 10px;
+	padding-right: 0;
+	padding-left: 10px;
 }
 
 div.item.backdrop.card span.release_date span.glyphicons {
-  top: 0;
-  padding-right: 0;
-  padding-left: 4px;
+	top: 0;
+	padding-right: 0;
+	padding-left: 4px;
 }
 
-div.item.card span.release_date, div.item.card span.release_date span.glyphicons, div.card span.genres, div.item.mini span.genres {
-  color: #666;
+div.item.card span.release_date, div.item.card span.release_date span.glyphicons,
+	div.card span.genres, div.item.mini span.genres {
+	color: #666;
 }
 
 div.item.card span.genres {
-  padding-left: 1px;
-  display: block;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  font-style: italic;
+	padding-left: 1px;
+	display: block;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	font-style: italic;
 }
 
 div.item.mini span.genres {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
 
 div.item.card div.image_content a div span.glyphicons {
-  padding-left: 4px;
-  padding-right: 4px;
-  font-size: 1.1em;
-  height: 90%;
+	padding-left: 4px;
+	padding-right: 4px;
+	font-size: 1.1em;
+	height: 90%;
 }
 
 div.item span.glyphicons {
-  display: inline-flex;
-  align-items: center;
+	display: inline-flex;
+	align-items: center;
 }
 
 div.item span.vote_average {
-  padding-top: 0;
-  margin-right: 0;
-  display: inline-flex;
-  align-items: center;
+	padding-top: 0;
+	margin-right: 0;
+	display: inline-flex;
+	align-items: center;
 }
 
 div.item span.glyphicons.list_action {
-  padding-left: 4px;
-  padding-right: 2px;
-  margin-left: 2px;
-  margin-right: 2px;
+	padding-left: 4px;
+	padding-right: 2px;
+	margin-left: 2px;
+	margin-right: 2px;
 }
 
 div.item span.favourite.selected {
-  color: #ef47b6;
-  border: none;
+	color: #ef47b6;
+	border: none;
 }
 
 div.item span.watchlist.selected {
-  color: #cf3131;
-  border: none;
+	color: #cf3131;
+	border: none;
 }
 
 div.item span.rating {
-  top: 0;
-  padding-left: 4px;
-  color: #000;
-  line-height: 0;
+	top: 0;
+	padding-left: 4px;
+	color: #000;
+	line-height: 0;
 }
 
-div.item span.rating.selected, div.item p.tv span.rating.selected, div.item p.movie span.rating.selected {
-  color: #efd147;
-  border: none;
+div.item span.rating.selected, div.item p.tv span.rating.selected, div.item p.movie span.rating.selected
+	{
+	color: #efd147;
+	border: none;
 }
 
 div.media_list {
-  width: 224px;
-  height: 300px;
-  float: left;
-  padding: 0 10px;
-  padding-bottom: 40px;
-  text-align: center;
+	width: 224px;
+	height: 300px;
+	float: left;
+	padding: 0 10px;
+	padding-bottom: 40px;
+	text-align: center;
 }
 
 div.media_list h3 {
-  text-align: center;
+	text-align: center;
 }
 
 div.media_list h3 a:hover {
-  text-decoration: none;
+	text-decoration: none;
 }
 
 div.media_list p {
-  font-size: 0.9em;
-  text-align: center;
+	font-size: 0.9em;
+	text-align: center;
 }
 
 div.media_list .stack img {
-  width: 130px;
-  height: 195px;
+	width: 130px;
+	height: 195px;
 }

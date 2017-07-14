@@ -49,6 +49,12 @@ public class MongoDBRepository{
 		return movie;
 	}
 	
+	public Iterable<Document> getMovieByTitle(String title){
+		String pattern = "."+title+".";
+		return this.mongoDatabase.getCollection("movies").find(regex("title",pattern,"i"));
+	}
+	
+	
 	public Document getMovieKeywords(int id_movie){
 		Document keywords = this.mongoDatabase.getCollection("movieKeywords").find(eq("id_movie",id_movie)).first();
 		return keywords;

@@ -13,6 +13,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
@@ -52,6 +53,28 @@ public class RedisRepository {
 		return posters;
 
 	}
+
+
+
+	public List<String> getMovieTrailer(String id) {
+		List<String> trailers=new LinkedList<String>();
+		Map<String, String> hgetAll = this.jedis.hgetAll("movieTrailers:"+id);
+	 List<String> toTake=new LinkedList<String>();
+
+	 for(Entry<String, String> e:hgetAll.entrySet()){
+		 if(e.getValue().contains("Official Trailer")||e.getValue().contains("Official US Trailer")){
+			 toTake.add(e.getKey());
+		 }
+	 }
+	 
+	 for(String s: toTake){
+		 trailers.add(hgetAll.get("link"+s.substring(s.indexOf("#"))));
+	 }
+		return trailers;
+	}
+
+
+
 
 
 	public List<String> getMovieBackdrops(String id_movie){
@@ -352,6 +375,8 @@ public class RedisRepository {
 	private void deleteDatabase(){
 		this.jedis.flushDB();
 	}
+
+
 
 
 

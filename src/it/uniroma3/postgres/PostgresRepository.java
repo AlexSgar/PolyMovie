@@ -68,6 +68,12 @@ public class PostgresRepository {
 
 
 	public Connection getConnection(String url) throws SQLException{
+		try {
+			Class.forName("org.postgresql.Driver");
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		Connection conn = DriverManager.getConnection(url,username,password);
 		return conn;
 	}
@@ -425,6 +431,47 @@ public class PostgresRepository {
 
 	}
 
+
+	public List<Actor> retrieveActors() throws SQLException {
+		List<Actor> actorsRetrieved=new LinkedList<Actor>();
+		conn=this.getConnection(dbUrl);
+		Statement stmt = null;
+		String query = " select distinct * from actors order by popularity DESC";
+		stmt = conn.createStatement();
+		ResultSet rs = stmt.executeQuery(query);
+		while (rs.next()) {
+			Actor act = createActorFromDB(rs);
+			actorsRetrieved.add(act);
+		}
+		conn.close();
+
+		return actorsRetrieved;
+
+	}
+
+
+
+	public Actor createActorFromDB(ResultSet rs) throws SQLException {
+		Actor act=new Actor();
+		act.setId(rs.getString("id_actor"));
+		act.setName(rs.getString("name"));
+
+		String popularity = rs.getString("popularity");
+		act.setPopularity(""+this.round(new Double(popularity), 2));
+		String path = rs.getString("profile_path");
+		if(path.equals("null")){
+			act.setPhoto("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRIjBLiqDUUSRDCtHnCMiAuaa1X54cT_Qt7P2pY32gwaoK_ix7R");
+		}else
+			act.setPhoto("https://image.tmdb.org/t/p/w500"+path);
+		String birth=rs.getString("birthday");
+		if(birth.equals("null")){
+			act.setBirthday("unkown");
+		}else
+			act.setBirthday(birth);
+		return act;
+	}
+
+
 	private void retrieveTVID() throws SQLException {
 		conn=this.getConnection(dbUrl);
 		Statement stmt = null;
@@ -457,16 +504,19 @@ public class PostgresRepository {
 
 
 
-	public List<String> retrieveActors4Movie(String id_movie) throws SQLException {
-		List<String> actorsRetrieved=new LinkedList<String>();
+	public List<Actor> retrieveActors4Movie(String id_movie) throws SQLException {
+		List<Actor> actorsRetrieved=new LinkedList<Actor>();
 		Connection conn= this.getConnection(this.dbUrl);
 		Statement stmt = null;
-		String query = "select distinct id_actor  from credits c join moviecredits"
-				+ " m on m.id_credit=c.id_credit where m.id_movie='"+id_movie+"'";
+		String query = "select distinct a.id_actor, a.name, "
+				+ "a.gender, a.profile_path, "
+				+ "a.popularity,a.birthday  from credits c join moviecredits" 
+				+ " m on m.id_credit=c.id_credit join actors a on c.id_actor=a.id_actor where m.id_movie='"+id_movie+"'";
 		stmt = conn.createStatement();
 		ResultSet rs= stmt.executeQuery(query);
 		while (rs.next()) {
-			actorsRetrieved.add(rs.getString("id_actor"));}
+			Actor act = createActorFromDB(rs);
+			actorsRetrieved.add(act);}
 		conn.close();
 
 		return actorsRetrieved;
@@ -479,7 +529,7 @@ public class PostgresRepository {
 		List<String> movieRetrived=new LinkedList<String>();
 		Connection conn= this.getConnection(this.dbUrl);
 		Statement stmt = null;
-		String query = "select distinct id_movie from credits c join moviecredits"
+		String query = "select distinct * from credits c join moviecredits"
 				+ " m on m.id_credit=c.id_credit where c.id_actor='"+id_actor+"'";
 		stmt = conn.createStatement();
 		ResultSet rs= stmt.executeQuery(query);
@@ -494,16 +544,17 @@ public class PostgresRepository {
 
 
 
-	public List<String> retrieveTvShow4Actor(String id_actor) throws SQLException {
-		List<String> tvShowRetrived=new LinkedList<String>();
+	public List<TV> retrieveTvShow4Actor(String id_actor) throws SQLException {
+		List<TV> tvShowRetrived=new LinkedList<TV>();
 		Connection conn= this.getConnection(this.dbUrl);
 		Statement stmt = null;
-		String query = "select distinct ts.id_serie,ts.name  from tvshow ts join "
+		String query = "select distinct  ts.* from tvshow ts join "
 				+ "tvroles tr on tr.id_serie=ts.id_serie where id_actor='"+id_actor+"'";
 		stmt = conn.createStatement();
 		ResultSet rs= stmt.executeQuery(query);
 		while (rs.next()) {
-			tvShowRetrived.add(rs.getString("name"));}
+			TV tv = createTVfromDB(rs);
+			tvShowRetrived.add(tv);}
 		conn.close();
 
 		return tvShowRetrived;
@@ -521,27 +572,7 @@ public class PostgresRepository {
 		stmt = conn.createStatement();
 		ResultSet rs= stmt.executeQuery(query);
 		while (rs.next()) {
-			TV tv=new TV();
-			tv.setId(rs.getString("id_serie"));
-			tv.setTitle(rs.getString("name"));
-			tv.setOverview("");
-			String popularity = rs.getString("popularity");
-			tv.setPopularity(""+this.round(new Double(popularity), 2));
-			String path = rs.getString("poster_path");
-			if(path.equals("null")){
-				tv.setPoster("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRIjBLiqDUUSRDCtHnCMiAuaa1X54cT_Qt7P2pY32gwaoK_ix7R");
-			}else
-				tv.setPoster("https://image.tmdb.org/t/p/w500"+path);
-			tv.setStatus(rs.getString("status"));
-			tv.setOriginalLang(rs.getString("original_language"));
-			String vote = rs.getString("vote_average");
-			tv.setVoteAvg(""+this.round(new Double(vote), 2));
-			String episodes = rs.getString("episodes_number");
-			if(episodes.equals("-1")){
-				episodes="Not Available";
-			}
-			tv.setEpisodes(episodes);
-			tv.setSeasons(rs.getString("seasons_number"));
+			TV tv = createTVfromDB(rs);
 			tvShowRetrived.add(tv);
 		}
 		conn.close();
@@ -551,16 +582,46 @@ public class PostgresRepository {
 
 
 
-	public List<String> retrieveActors4TV(String id_serie) throws SQLException {
-		LinkedList<String> actorsRetrieved=new LinkedList<String>();
+	public TV createTVfromDB(ResultSet rs) throws SQLException {
+		TV tv=new TV();
+		tv.setId(rs.getString("id_serie"));
+		tv.setTitle(rs.getString("name"));
+		tv.setOverview("");
+		String popularity = rs.getString("popularity");
+		tv.setPopularity(""+this.round(new Double(popularity), 2));
+		String path = rs.getString("poster_path");
+		if(path.equals("null")){
+			tv.setPoster("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRIjBLiqDUUSRDCtHnCMiAuaa1X54cT_Qt7P2pY32gwaoK_ix7R");
+		}else
+			tv.setPoster("https://image.tmdb.org/t/p/w500"+path);
+		tv.setStatus(rs.getString("status"));
+		tv.setOriginalLang(rs.getString("original_language"));
+		String vote = rs.getString("vote_average");
+		tv.setVoteAvg(""+this.round(new Double(vote), 2));
+		String episodes = rs.getString("episodes_number");
+		if(episodes.equals("-1")){
+			episodes="Not Available";
+		}
+		tv.setEpisodes(episodes);
+		tv.setSeasons(rs.getString("seasons_number"));
+		return tv;
+	}
+
+
+
+	public List<Actor> retrieveActors4TV(String id_serie) throws SQLException {
+		LinkedList<Actor> actorsRetrieved=new LinkedList<Actor>();
 		Connection conn= this.getConnection(this.dbUrl);
 		Statement stmt = null;
-		String query = "select distinct a.id_actor  from actors a join tvroles"
+		String query = "select distinct a.id_actor, a.name, "
+				+ "a.gender, a.profile_path, "
+				+ "a.popularity,a.birthday from actors a join tvroles"
 				+ " tv on a.id_actor=tv.id_actor where tv.id_serie='"+id_serie+"'";
 		stmt = conn.createStatement();
 		ResultSet rs= stmt.executeQuery(query);
 		while (rs.next()) {
-			actorsRetrieved.add(rs.getString("id_actor"));}
+			Actor act=createActorFromDB(rs);
+			actorsRetrieved.add(act);}
 		conn.close();
 
 		return  actorsRetrieved;

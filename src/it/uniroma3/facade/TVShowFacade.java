@@ -6,14 +6,9 @@ import it.uniroma3.postgres.PostgresRepository;
 import it.uniroma3.redis.RedisRepository;
 
 import java.sql.SQLException;
-import java.util.LinkedList;
 import java.util.List;
 
 public class TVShowFacade {
-	private  List<String> actorsRetrieved;
-	private  List<String> movieRetrived;
-	//private  List<String> tvShowRetrived;
-	private  List<String> movieList;
 	private PostgresRepository postgres;
 	private RedisRepository redisRepo;
 	private String dbUrl="jdbc:postgresql://localhost/moviedb";
@@ -29,6 +24,12 @@ public class TVShowFacade {
 
 	public List<TV> retrieveTvShow() throws SQLException {
 		List<TV> tvList = postgres.retrieveTvShow();
+		return tvList;
+	}
+
+
+	public List<TV> retrieveTvShow4Actor(String id_actor) throws SQLException {
+		List<TV> tvList = postgres.retrieveTvShow4Actor(id_actor);
 		return tvList;
 	}
 	

@@ -18,11 +18,11 @@
 <script type="text/javascript"
 	src="http://code.jquery.com/jquery-1.10.0.min.js"></script>
 <script type="text/javascript"
-	src="<c:url value="/resources/dist/js/toggle.js"/>"></script>
+	src="<c:url value="/resources/dist/js/flat-ui.min.js"/>"></script>
 </head>
 
 <body>
-<%@ include file="static.html"%>
+	<%@ include file="static.html"%>
 
 
 	<div>
@@ -34,35 +34,21 @@
 						<div class="item poster card">
 							<div class="image_content">
 								<a id="movie_${movie.id}" class="result"
-									href="/movie/${movie.id}" title="${movie.title}"
+									href="<c:url value="/movie/${movie.id}"/>" title="${movie.title}"
 									alt="${movie.title}"> <img
 									class="poster lazyautosizes lazyloaded" data-sizes="auto"
 									data-src="${movie.poster}" data-srcset="${movie.poster}"
 									alt="${movie.title}" sizes="185px" srcset="${movie.poster}"
 									src="${movie.poster}">
 
-
-
-									<div class="meta" data-role="tooltip">
-										<span id="popularity_54c7e0bdc3a36874bf0046fb_value"
-											class="hide popularity_rank_value">
-											<div class="tooltip_popup popularity">
-												<h3>Classifica Di Popolarità</h3>
-												<p>Oggi: 1</p>
-												<p>Settimana Scorsa: 1</p>
-											</div>
-										</span> <span id="popularity_54c7e0bdc3a36874bf0046fb"
-											class="glyphicons glyphicons-cardio x1 popularity_rank"></span>
-										<span class="right"> </span>
-									</div>
 								</a>
 							</div>
 							<div class="info">
 								<p class="flex">
 									<a id="movie_${movie.id}" class="title result"
-										href="/movie/${movie.id}" title="${movie.title}"
+										href="<c:url value="/movie/${movie.id}"/>" title="${movie.title}"
 										alt="${movie.title}"> ${movie.title} </a> <span
-										class="vote_average">${movie.popularity}<span
+										class="vote_average">${movie.voteAvg}<span
 										id="rating_54c7e0bdc3a36874bf0046fb"
 										class="glyphicons glyphicons-star x1 rating movie"></span></span>
 								</p>
@@ -73,8 +59,13 @@
 								</p>
 								<p class="overview">${movie.overview}</p>
 								<p class="view_more">
-									<a id="movie_321612" class="result" href="/movie/${movie.id}"
-										title="${movie.title}" alt="${movie.title}">Più Info</a>
+								<a class="btn btn-circle btn-inverse"
+									href="<c:url value="/movie/${movie.id}"/>" title="trailer" alt="${movie.title}">Info
+									<span class="fui-search"></span>
+								</a>
+									<a class="btn btn-circle btn-inverse"
+										href="<c:url value="/movie/${movie.id}/actors"/>"
+										title="${movie.title}" >Cast <span class="fui-user"></a>
 								</p>
 							</div>
 						</div>

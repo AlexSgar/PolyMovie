@@ -1,7 +1,9 @@
 package it.uniroma3.controller;
 
+import it.uniroma3.facade.ActorFacade;
 import it.uniroma3.facade.MovieFacade;
 import it.uniroma3.facade.TVShowFacade;
+import it.uniroma3.model.Actor;
 import it.uniroma3.model.Movie;
 import it.uniroma3.model.TV;
 import it.uniroma3.postgres.PostgresRepository;
@@ -27,20 +29,15 @@ import org.springframework.web.bind.annotation.RequestMethod;
 @Controller
 @RequestMapping("/")
 public class MainController {
-	private  List<String> actorsRetrieved;
-	private  List<String> movieRetrived;
-	private  List<String> tvShowRetrived;
-	private  List<String> movieList;
-	private PostgresRepository postgres;
-	private String dbUrl="jdbc:postgresql://localhost/moviedb";
 	private MovieFacade movieFacade;
 	private TVShowFacade tvFacade;
+	private ActorFacade actorFacade;
 
 
 	public MainController() {
-		this.postgres=new PostgresRepository(dbUrl);
 		movieFacade= new MovieFacade();
 		tvFacade= new TVShowFacade();
+		actorFacade = new ActorFacade();
 		
 
 	}
@@ -58,9 +55,9 @@ public class MainController {
 
 	@RequestMapping(value="actor",method = RequestMethod.GET)
 	public String getActors(Model model) throws SQLException {
-		this.actorsRetrieved=postgres.retrieveActorsID();
-		int size = this.actorsRetrieved.size();
-		model.addAttribute("actors",new LinkedList<String>(this.actorsRetrieved).subList(0, 100));
+		List<Actor> actorsRetrieved=actorFacade.retrieveActors();
+		int size = actorsRetrieved.size();
+		model.addAttribute("actors",(actorsRetrieved).subList(0, 100));
 		return  "actor-list";
 	}
 
@@ -75,6 +72,23 @@ public class MainController {
 
 
 
+	@RequestMapping(value="movie/{id}", method = RequestMethod.GET)
+	public String getMovieInfo(@PathVariable("id") String id_movie ,Model model) throws SQLException, JSONException {
+		Movie m=movieFacade.getMovie(id_movie);
+		model.addAttribute("movie",m);
+		return  "movie-info";
+	}
+	
+	@RequestMapping(value="movie/{id}/related", method = RequestMethod.GET)
+	public String getMovieRelated(@PathVariable("id") String id_movie ,Model model) throws SQLException, JSONException {
+		List<Movie> retrieveMovie=movieFacade.getMovieRelated(id_movie);
+		model.addAttribute("movies",retrieveMovie);
+		return  "movie-list";
+	}
+	
+	
+	
+
 	@RequestMapping(value="actor/{id}", method = RequestMethod.GET)
 	public String getSingleActor(@PathVariable("id") String id_attore ,Model model) throws SQLException {
 		model.addAttribute("tvShow","dafare");
@@ -85,9 +99,9 @@ public class MainController {
 
 	@RequestMapping(value="movie/{id}/actors",method = RequestMethod.GET)
 	public String getActorsInMovies(@PathVariable("id") String id_movie ,Model model) throws SQLException {
-		this.actorsRetrieved=postgres.retrieveActors4Movie(id_movie);
-		int size = this.actorsRetrieved.size();
-		model.addAttribute("actors",new LinkedList<String>(this.actorsRetrieved));
+		List<Actor> actorsRetrieved=actorFacade.retrieveActors4Movie(id_movie);
+		int size = actorsRetrieved.size();
+		model.addAttribute("actors",(actorsRetrieved));
 		return  "actor-list";
 	}
 
@@ -104,18 +118,18 @@ public class MainController {
 
 	@RequestMapping(value="actor/{id}/tvshows",method = RequestMethod.GET)
 	public String getTVShowWithActor(@PathVariable("id") String id_actor ,Model model) throws SQLException {
-		this.tvShowRetrived=postgres.retrieveTvShow4Actor(id_actor);
-		int size = this.tvShowRetrived.size();
-		model.addAttribute("tvShowList",new LinkedList<String>(this.tvShowRetrived));
+		List<TV> tvShowRetrived=tvFacade.retrieveTvShow4Actor(id_actor);
+		int size = tvShowRetrived.size();
+		model.addAttribute("tvShowList",tvShowRetrived);
 		return  "tvshow-list";
 	}
 
 
 	@RequestMapping(value="tv/{id}/actors",method = RequestMethod.GET)
 	public String getActors4TVShow(@PathVariable("id") String id_serie ,Model model) throws SQLException {
-		this.actorsRetrieved=this.postgres.retrieveActors4TV(id_serie);
-		int size = this.actorsRetrieved.size();
-		model.addAttribute("actors",new LinkedList<String>(this.actorsRetrieved));
+		List<Actor> actorsRetrieved=actorFacade.retrieveActors4TV(id_serie);
+		int size = actorsRetrieved.size();
+		model.addAttribute("actors",actorsRetrieved);
 		return  "actor-list";
 	}
 

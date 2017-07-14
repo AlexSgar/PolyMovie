@@ -1,5 +1,8 @@
 package it.uniroma3.model;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -8,10 +11,13 @@ public class Movie {
 	private String title;
 	private String overview;
 	private String keywords;
+	private List<String> keywordTag;
+	private String trailer;
 	private String poster;
 	private String year;
 	private String popularity;
-
+	private String voteAvg;
+	private List<Review> review;
 	public Movie() {}
 
 	public Movie(String id, String name, String description, String poster,
@@ -31,6 +37,7 @@ public class Movie {
 		this.year =cur.getString("release_date");
 		this.setKeywords("movie");
 		this.popularity=cur.getString("popularity");
+		this.setVoteAvg(cur.getString("vote_average"));
 		this.poster="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRIjBLiqDUUSRDCtHnCMiAuaa1X54cT_Qt7P2pY32gwaoK_ix7R";
 	}
 
@@ -88,6 +95,44 @@ public class Movie {
 
 	public void setKeywords(String keywords) {
 		this.keywords = keywords;
+	}
+
+	public String getVoteAvg() {
+		return voteAvg;
+	}
+
+	public void setVoteAvg(String voteAvg) {
+		this.voteAvg = voteAvg;
+	}
+
+	public List<String> getKeywordTag() {
+		String[] split = keywords.split(",");
+		LinkedList<String> tags = new LinkedList<String>();
+		for(int i=0; i<split.length; i++){
+			tags.add(split[i]);
+		}
+		return tags;
+	}
+
+	public void setKeywordTag(List<String> keywordTag) {
+		this.keywordTag = keywordTag;
+	}
+
+	public String getTrailer() {
+		return trailer;
+	}
+
+	public void setTrailer(String trailer) {
+		this.trailer = trailer;
+	}
+	
+	public List<Review> getReview(){
+		return this.review;
+	}
+
+	public void setReview(List<Review> retrieveReview) {
+		this.review= retrieveReview;
+		
 	}
 	
 	

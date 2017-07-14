@@ -18,8 +18,7 @@
 <script type="text/javascript"
 	src="http://code.jquery.com/jquery-1.10.0.min.js"></script>
 <script type="text/javascript"
-	src="<c:url value="/resources/dist/js/toggle.js"/>"></script>
-</head>
+	src="<c:url value="/resources/dist/js/flat-ui.min.js"/>"></script></head>
 
 <body>
 <%@ include file="static.html"%>
@@ -67,8 +66,9 @@
 								</p>
 								<p class="overview">${tvShow.overview}</p>
 								<p class="view_more">
-									<a id="movie_321612" class="result" href="/movie/${tvShow.id}"
-										title="${tvShow.title}" alt="${tvShow.title}">Più Info</a>
+									<a class="btn btn-circle btn-inverse"  href="<c:url value="/tv/${tvShow.id}/actors"/>"
+										title="${tvShow.title}" alt="${tvShow.title}">Cast <span
+									class="fui-user"></span></a>
 								</p>
 							</div>
 						</div>

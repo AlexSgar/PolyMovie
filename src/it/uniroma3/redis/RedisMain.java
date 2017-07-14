@@ -12,6 +12,7 @@ public class RedisMain {
 	public static void main(String[] args) throws IOException{
 		RedisRepository ra = new RedisRepository();
 		
+		//ra.getMovieTrailer("119450").forEach(e->System.out.println(e));
 		//movieImages.forEach(e->System.out.println(e));
 		//ra.deleteDatabase();
 		//ra.populateMovieImagesAndTrailers();

@@ -1,7 +1,9 @@
 package it.uniroma3.facade;
 
 import it.uniroma3.model.Movie;
+import it.uniroma3.model.Review;
 import it.uniroma3.mongodb.MongoDBRepository;
+import it.uniroma3.neo4j.Neo4JRepository;
 import it.uniroma3.postgres.PostgresRepository;
 import it.uniroma3.redis.RedisRepository;
 
@@ -17,6 +19,7 @@ import org.json.JSONObject;
 public class MovieFacade {
 	private PostgresRepository postgres;
 	private RedisRepository redisRepo;
+	private Neo4JRepository neo4Repo;
 	private String dbUrl="jdbc:postgresql://localhost/moviedb";
 	private MongoDBRepository mongoRepo;
 
@@ -24,6 +27,7 @@ public class MovieFacade {
 		this.postgres=new PostgresRepository(dbUrl);
 		this.mongoRepo= new  MongoDBRepository();
 		this.redisRepo= new RedisRepository();
+		this.neo4Repo= new Neo4JRepository();
 	}
 
 	public List<Movie> retrieveMovie() throws SQLException, JSONException {
@@ -83,6 +87,47 @@ public class MovieFacade {
 				m.setPoster(moviePosters.get(0));
 			}
 			retrievedM.add(m);
+		}
+		return retrievedM;
+	}
+
+	public Movie getMovie(String id_movie) throws JSONException {
+		Document movie = mongoRepo.getMovie(new Integer(id_movie));
+		Movie m=new  Movie(new JSONObject(movie.toJson()));
+		List<String> moviePosters = redisRepo.getMoviePosters(m.getId());
+		List<String> movieTrailers = redisRepo.getMovieTrailer(m.getId());
+		if(movieTrailers.size()!=0){
+			m.setTrailer(movieTrailers.get(0));	
+		}
+		setKeywords(m);
+		if(moviePosters!=null&&moviePosters.size()!=0){
+			m.setPoster(moviePosters.get(0));
+		}
+		List<Review> retrieveReview = neo4Repo.retrieveReview(id_movie);
+		if(retrieveReview!=null){
+			m.setReview(retrieveReview);
+		}
+
+
+
+		return m;
+	}
+
+	public List<Movie> getMovieRelated(String id_movie) throws JSONException {
+		List<String> movieList= neo4Repo.retrieveMovieRelated(id_movie);
+		List<Movie> retrievedM=new LinkedList<Movie>();
+		for(String idMovie: movieList){
+			Document movie = mongoRepo.getMovie(new Integer(idMovie));
+			if(!movie.isEmpty()){
+				JSONObject cur=new JSONObject(movie);
+				Movie m= new Movie(cur);
+				List<String> moviePosters = redisRepo.getMoviePosters(m.getId());
+				setKeywords(m);
+				if(moviePosters!=null&&moviePosters.size()!=0){
+					m.setPoster(moviePosters.get(0));
+				}
+				retrievedM.add(m);
+			}
 		}
 		return retrievedM;
 	}
