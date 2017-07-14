@@ -107,9 +107,6 @@ public class MovieFacade {
 		if(retrieveReview!=null){
 			m.setReview(retrieveReview);
 		}
-
-
-
 		return m;
 	}
 
@@ -128,6 +125,23 @@ public class MovieFacade {
 				}
 				retrievedM.add(m);
 			}
+		}
+		return retrievedM;
+	}
+
+	public List<Movie> searchMovieByTitle(String serch) throws JSONException {
+		List<Movie> retrievedM=new LinkedList<Movie>();
+		Iterable<Document> movies = this.mongoRepo.getMovieByTitle(serch);
+	
+		for(Document d: movies){
+			JSONObject cur=new JSONObject(d.toJson());
+			Movie m= new Movie(cur);
+			List<String> moviePosters = redisRepo.getMoviePosters(m.getId());
+			setKeywords(m);
+			if(moviePosters!=null&&moviePosters.size()!=0){
+				m.setPoster(moviePosters.get(0));
+			}
+			retrievedM.add(m);
 		}
 		return retrievedM;
 	}

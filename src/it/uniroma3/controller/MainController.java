@@ -25,6 +25,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 @RequestMapping("/")
@@ -50,6 +51,16 @@ public class MainController {
 		model.addAttribute("movies",retrieveMovie);
 		return  "movie-list";
 	}
+	
+	/*
+	@RequestMapping(value="search",method = RequestMethod.GET)
+	public String searchMovies(@RequestParam("search") String serch, Model model) throws SQLException, JSONException {
+		List<Movie> retrieveMovie = movieFacade.searchMovieByTitle(serch);
+		model.addAttribute("message", "film trovati: "+retrieveMovie.size());
+		model.addAttribute("movies",retrieveMovie);
+		return  "movie-list";
+	}
+	*/
 
 
 
