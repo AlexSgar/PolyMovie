@@ -107,6 +107,17 @@
 						</div>
 					</div>
 				</div>
+				<div class="list-group" style="padding-bottom: 20px;">
+					<a href="#" class="list-group-item active"
+						style="background: #2c3e50;">Movies info</a> <a href="#"
+						class="list-group-item">From TMDB we discovered that 17892
+						movies aren't linked to any trailer </a> <a href="#"
+						class="list-group-item">From TMDB we discovered that for 12727
+						movies we don't have any backdrops or Posters </a> <a href="#"
+						class="list-group-item active" style="background: #2c3e50;">Actors
+						info</a> <a href="#" class="list-group-item">From TMDB we
+						discovered that for 112510 actors we don't have any photo</a>
+				</div>
 			</div>
 			<div id="postgP">
 				<h2>Our Stats on Postgres</h2>

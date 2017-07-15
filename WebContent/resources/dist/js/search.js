@@ -12,14 +12,14 @@ window.onload = function() {
 	$("#search-button").click(function() {
 		var param=$("#navbarInput-01").val();
 		//console.log("/HelloWeb/movie/"+param);
-		window.location="/HelloWeb/search?search="+param;
+		window.location="/PlyMovie/search?search="+param;
 	});
 
 	$("#navbarInput-01").keypress(function(e) {
 		if(e.which == 13) {
 			var param=$("#navbarInput-01").val();
 			//console.log("/HelloWeb/movie/"+param);
-			window.location="/HelloWeb/search?search="+param;}
+			window.location="/PolyMovie/search?search="+param;}
 	});
 
 
