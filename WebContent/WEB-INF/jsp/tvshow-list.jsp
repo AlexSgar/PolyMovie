@@ -45,7 +45,7 @@
 							<div class="info">
 								<p class="flex">
 									<a id="movie_${tvShow.id}" class="title result"
-										href="/tv/${tvShow.id}" title="${tvShow.title}"
+										href="#" title="${tvShow.title}"
 										alt="${tvShow.title}"> ${tvShow.title} </a> <span
 										class="vote_average">${tvShow.voteAvg}<span
 										id="rating_54c7e0bdc3a36874bf0046fb"
