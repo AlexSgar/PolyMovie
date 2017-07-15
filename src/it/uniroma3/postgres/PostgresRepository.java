@@ -55,26 +55,19 @@ public class PostgresRepository {
 		dbUrl=(url+dbName);
 	}
 
-
-
 	public PostgresRepository(String dbUrl2) {
 		this.dbUrl=dbUrl2;
 	}
-
-
 
 	public Connection getConnection(String url) throws SQLException{
 		try {
 			Class.forName("org.postgresql.Driver");
 		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		Connection conn = DriverManager.getConnection(url,username,password);
 		return conn;
 	}
-
-
 
 
 	public void buildDataBase(String url, String dbName) throws SQLException {
@@ -112,7 +105,6 @@ public class PostgresRepository {
 		populateMovieTables();
 		conn.close();
 	}
-
 
 
 	/**
@@ -173,8 +165,6 @@ public class PostgresRepository {
 		populateTvShowTables();
 
 		conn.close();
-
-
 
 	}
 

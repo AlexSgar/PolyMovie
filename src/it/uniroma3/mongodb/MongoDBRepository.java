@@ -35,8 +35,6 @@ public class MongoDBRepository{
 		this.mongoDatabase = this.mongoClient.getDatabase("tmdb");
 	}
 	
-	
-	
 	public Iterable<Document> getMovies(String param){
 		FindIterable<Document> movies = this.mongoDatabase.getCollection("movies").find()
 				.sort(new BasicDBObject(param,-1)).limit(100);
@@ -62,36 +60,6 @@ public class MongoDBRepository{
 		Document keywords = this.mongoDatabase.getCollection("movieKeywords").find(eq("id_movie",id_movie)).first();
 		return keywords;
 	}
-
-	private void insertMovies(List<Document> moviesToAdd){
-		movies.insertMany(moviesToAdd);
-	}
-
-	private void insertMoviesKeywords(List<Document> moviesKeywordsToAdd){
-		moviesKeywords.insertMany(moviesKeywordsToAdd);
-	}
-
-
-	void printElements(){
-		MongoCollection<Document> movies = this.mongoDatabase.getCollection("movies");
-		System.out.println(movies.count());
-		MongoCursor<Document> cursor = movies.find().iterator();
-
-		try{
-			while(cursor.hasNext()){
-				System.out.println(cursor.next().toJson());
-			}
-		}
-		finally{
-			cursor.close();
-		}
-	}
-
-	public void deleteCollection(String collectionName){
-		MongoCollection<Document> movies = this.mongoDatabase.getCollection(collectionName);
-		movies.deleteMany(new Document());
-	}
-	
 	
 
 	public void populateMoviesAndMoviesKeywords() throws IOException{
@@ -99,7 +67,7 @@ public class MongoDBRepository{
 		long startTime = System.currentTimeMillis();
 		System.out.println("started at: "+new Date(startTime));
 
-		int maxEntriesToInsert = 50000;
+		int maxEntriesToInsert = 50000;//max of entries to insert,links_clear ~40k
 		int nOfCurrentGoodRequest = 0;
 		int nOfInsertedEntries = 0;
 		int batchSize = 19;
@@ -128,8 +96,7 @@ public class MongoDBRepository{
 				currentLineNumber++;
 				movieId = currentLine.split(",")[2];
 				movieJson = this.movieAdapter.getMovieAppendKeywords(movieId);
-				//System.out.println("movie id: "+ movieJson.getString("id")+" title:"+ movieJson.getString("title"));
-
+				
 				if(movieJson!=null){
 
 					//add movieKeywords to moviesKeywordsToAdd collection
@@ -198,5 +165,35 @@ public class MongoDBRepository{
 		System.out.println("ended in: "+((endTime-startTime)/1000)/60.0+" minutes");
 
 	}
+	
+	private void insertMovies(List<Document> moviesToAdd){
+		movies.insertMany(moviesToAdd);
+	}
+
+	private void insertMoviesKeywords(List<Document> moviesKeywordsToAdd){
+		moviesKeywords.insertMany(moviesKeywordsToAdd);
+	}
+
+
+	private void printElements(String collectionName){
+		MongoCollection<Document> movies = this.mongoDatabase.getCollection(collectionName);
+		System.out.println(movies.count());
+		MongoCursor<Document> cursor = movies.find().iterator();
+
+		try{
+			while(cursor.hasNext()){
+				System.out.println(cursor.next().toJson());
+			}
+		}
+		finally{
+			cursor.close();
+		}
+	}
+
+	private void deleteCollection(String collectionName){
+		MongoCollection<Document> movies = this.mongoDatabase.getCollection(collectionName);
+		movies.deleteMany(new Document());
+	}
+	
 
 }

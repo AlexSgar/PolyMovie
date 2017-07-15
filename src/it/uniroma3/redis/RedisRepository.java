@@ -34,7 +34,6 @@ public class RedisRepository {
 		this.jedis = new Jedis();//use default for connection
 	}
 
-
 	public List<String> getMoviePosters(String id_movie){
 		List<String> posters = this.jedis.hgetAll("movieImages:"+id_movie)
 				.entrySet()
@@ -46,28 +45,22 @@ public class RedisRepository {
 
 	}
 
-
-
 	public List<String> getMovieTrailer(String id) {
 		List<String> trailers=new LinkedList<String>();
 		Map<String, String> hgetAll = this.jedis.hgetAll("movieTrailers:"+id);
-	 List<String> toTake=new LinkedList<String>();
+		List<String> toTake=new LinkedList<String>();
 
-	 for(Entry<String, String> e:hgetAll.entrySet()){
-		 if(e.getValue().contains("Official Trailer")||e.getValue().contains("Official US Trailer")){
-			 toTake.add(e.getKey());
-		 }
-	 }
-	 
-	 for(String s: toTake){
-		 trailers.add(hgetAll.get("link"+s.substring(s.indexOf("#"))));
-	 }
+		for(Entry<String, String> e:hgetAll.entrySet()){
+			if(e.getValue().contains("Official Trailer")||e.getValue().contains("Official US Trailer")){
+				toTake.add(e.getKey());
+			}
+		}
+
+		for(String s: toTake){
+			trailers.add(hgetAll.get("link"+s.substring(s.indexOf("#"))));
+		}
 		return trailers;
 	}
-
-
-
-
 
 	public List<String> getMovieBackdrops(String id_movie){
 		List<String> backs = this.jedis.hgetAll("movieImages:"+id_movie)
@@ -80,9 +73,11 @@ public class RedisRepository {
 
 	}
 
+	public List<String> getActorImages(String id_actor) throws IOException {
 
+		return (List<String>)this.jedis.hgetAll("actorImages:"+id_actor).values();
 
-
+	}
 
 	public void populateMovieImagesAndTrailers() throws IOException{
 
@@ -355,19 +350,9 @@ public class RedisRepository {
 		System.out.println("ended in: "+((endTime-startTime)/1000)/60.0+" minutes");
 	}
 
-	public List<String> getActorImages(String id_actor) throws IOException {
-
-		return (List<String>)this.jedis.hgetAll("actorImages:"+id_actor).values();
-
-	}
-
-
-
-/*
 	private void deleteDatabase(){
 		this.jedis.flushDB();
-	}
-*/
+	}	
 
 
 

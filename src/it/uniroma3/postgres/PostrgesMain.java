@@ -13,24 +13,22 @@ public class PostrgesMain {
 
 
 	public static void main(String[] args) throws SQLException, IOException, JSONException{
+		
 		String url = "jdbc:postgresql://localhost/";
 		String dbName="moviedb";
 		PostgresRepository populater = new PostgresRepository(url, dbName);
 
-
 		System.out.println("Creazione Database e tabelle in corso...");
 		
-		/*
+		
 		 try{
 			populater.buildDataBase(url, dbName);
-		}catch(PSQLException p){System.out.println("database gia esistente");}
-		 */
-		//populater.populateDB();
-
-		//populater.fixError();
-		//populater.populateActorsPart();
-		//populater.populateTVPart();
-
+		}catch(PSQLException p){
+			System.out.println("database gia esistente");
+		}
+		 
+		populater.populateDB();
+		
 
 	}
 

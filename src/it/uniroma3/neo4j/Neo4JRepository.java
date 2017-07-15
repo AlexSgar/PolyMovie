@@ -29,8 +29,7 @@ public class Neo4JRepository {
 
 	}
 
-	public void populateDB()
-			throws FileNotFoundException, IOException {
+	public void populateDB() throws FileNotFoundException, IOException {
 		MovieAdapter mvAd= new MovieAdapter();
 		FileReader input = new FileReader("ml-latest/links.csv");
 		BufferedReader lines = new BufferedReader(input);
@@ -72,8 +71,8 @@ public class Neo4JRepository {
 		driver.close();
 	}
 
-	public  void addReviews(String idToAsk,
-			JSONArray reviews) throws JSONException {
+	public void addReviews(String idToAsk,JSONArray reviews) throws JSONException {
+		
 		for(int j=0; j<reviews.length(); j++){
 			JSONObject currRev = reviews.getJSONObject(j);
 			String user = currRev.getString("author");
@@ -86,8 +85,8 @@ public class Neo4JRepository {
 		}
 	}
 
-	public  void addRelatedMovie(String idToAsk,
-			JSONArray related) throws JSONException {
+	public void addRelatedMovie(String idToAsk, JSONArray related) throws JSONException {
+		
 		for(int j=0; j<related.length() && j<5; j++){
 			Movie movieRelated= new Movie(related.getJSONObject(j));
 			session.run( "MATCH (a:Movie) WHERE a.id_movie={idA}"
@@ -116,10 +115,8 @@ public class Neo4JRepository {
 			reviews.add(r);
 			i++;
 		}
-
+		
 		return reviews;
-
-
 	}
 
 	public List<String> retrieveMovieRelated(String id_movie) {

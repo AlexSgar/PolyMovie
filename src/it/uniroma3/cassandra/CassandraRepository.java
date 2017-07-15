@@ -37,104 +37,7 @@ public class CassandraRepository {
 		input = new FileReader("ml-latest/links_clear.csv");
 		lines = new BufferedReader(input);
 	}
-
-	public void populateLanguageRelated() throws IOException{
-		String currentLine="";
-		int i=0;
-		session.execute("use movieDB");
-		while((currentLine = lines.readLine())!=null) {
-			/*while( 27616>i){
-				currentLine = lines.readLine();
-				i++;
-			}*/
-
-			try{
-				String[] splitted = currentLine.split(",");
-				String idToAsk = splitted[2];
-				JSONObject movie = mvAdapter.getMovieLanguagesAppendedRequest(idToAsk);
-				JSONArray translationAvailable=movie.getJSONObject("translations").getJSONArray("translations");
-				JSONArray titlesAvailable=movie.getJSONObject("alternative_titles").getJSONArray("titles");
-
-				insertOfTraslations(idToAsk, translationAvailable);
-				insertOfAlternativeTitles(idToAsk, titlesAvailable);
-
-			}catch(Exception e){
-				e.printStackTrace();
-				System.out.println("problemi alla riga i: "+ i);
-
-			}
-			System.out.println("inserisco "+i);
-			i++;
-		}
-
-	}
-
-	public void insertOfAlternativeTitles(String idToAsk,
-			JSONArray titlesAvailable) throws JSONException {
-		String queryTitles="INSERT INTO MovieAlternativeTitles (id_Movie, iso_3166, alternative_titles)";
-		Map<String,String> iso3166Map=new HashMap<>();
-		for(int j=0; j<titlesAvailable.length();j++){
-			JSONObject title = (JSONObject) titlesAvailable.get(j);
-			String escapedTitle = title.getString("title").replaceAll("'", "''");
-			String titles;
-			if(iso3166Map.containsKey(title.getString("iso_3166_1"))){
-				titles = iso3166Map.get(title.getString("iso_3166_1"));
-				titles+=("'"+escapedTitle+"',");
-			}else{titles="['"+escapedTitle+"',";}
-
-			iso3166Map.put(title.getString("iso_3166_1"), titles);
-		}
-		for(String iso:iso3166Map.keySet()){
-			String alternatives = iso3166Map.get(iso)+"]";
-			alternatives=alternatives.replaceAll(",]", "]");
-			String inQuery=queryTitles+" VALUES('"+idToAsk+"','"+iso+"',"+alternatives+")";
-			session.execute(inQuery);
-		}
-	}
-
-	public void insertOfTraslations(String idToAsk,
-			JSONArray translationAvailable) throws JSONException {
-		String queryTraslation="INSERT INTO MovieTranslations(id_Movie,translation_languages,translation_Json)";
-		StringBuilder languagesList= new StringBuilder();
-		StringBuilder languageType= new StringBuilder();
-
-		for(int j=0; j<translationAvailable.length();j++){	
-			JSONObject lng = (JSONObject) translationAvailable.get(j);
-			languagesList.append("'"+lng.getString("english_name")+"',");
-			languageType.append("{iso_3166:'"+lng.getString("iso_3166_1")+"',iso_639:'"+lng.getString("iso_639_1")+"',name:'"
-					+lng.getString("name")+"',english_name:'"+lng.getString("english_name")+"'},");
-		}
-
-		String jsonLanguages="["+languageType.toString()+"]";
-		String enNameList="["+languagesList+"]";
-		jsonLanguages=jsonLanguages.replaceAll(",]", "]");
-		enNameList=enNameList.replaceAll(",]", "]");
-
-		queryTraslation+=" VALUES('"+idToAsk+"',"+enNameList+","+jsonLanguages+")";
-		session.execute(queryTraslation);
-	}
-
-
-
-
-	public void connect(String node) {
-		cluster = Cluster.builder().addContactPoint(node).build();
-		Metadata metadata = cluster.getMetadata();
-		System.out.println("Cassandra connection established");
-		System.out.printf("Connected to cluster: %s\n",metadata.getClusterName());
-		for (Host host : metadata.getAllHosts()) {
-			System.out.printf("Datatacenter: %s; Host: %s; Rack: %s \n",
-					host.getDatacenter(), host.getAddress(), host.getRack());
-			session = cluster.connect();
-		}
-	}
-
-
-	public void close() {
-		cluster.close();
-	}
-
-
+	
 	public void createSchema() {
 		try{session.execute("CREATE KEYSPACE movieDB WITH replication "
 				+ "= {'class':'SimpleStrategy', 'replication_factor':3};");}
@@ -165,6 +68,96 @@ public class CassandraRepository {
 			System.out.println("columnfamilies gia create");
 		}
 	}
+	
+	public void connect(String node) {
+		cluster = Cluster.builder().addContactPoint(node).build();
+		Metadata metadata = cluster.getMetadata();
+		System.out.println("Cassandra connection established");
+		System.out.printf("Connected to cluster: %s\n",metadata.getClusterName());
+		for (Host host : metadata.getAllHosts()) {
+			System.out.printf("Datatacenter: %s; Host: %s; Rack: %s \n",
+					host.getDatacenter(), host.getAddress(), host.getRack());
+			session = cluster.connect();
+		}
+	}
+
+
+	public void close() {
+		cluster.close();
+	}
+
+	public void populateLanguageRelated() throws IOException{
+		String currentLine="";
+		int i=0;
+		session.execute("use movieDB");
+		
+		while((currentLine = lines.readLine())!=null) {
+
+			try{
+				String[] splitted = currentLine.split(",");
+				String idToAsk = splitted[2];
+				JSONObject movie = mvAdapter.getMovieLanguagesAppendedRequest(idToAsk);
+				JSONArray translationAvailable=movie.getJSONObject("translations").getJSONArray("translations");
+				JSONArray titlesAvailable=movie.getJSONObject("alternative_titles").getJSONArray("titles");
+
+				populateTraslations(idToAsk, translationAvailable);
+				populateAlternativeTitles(idToAsk, titlesAvailable);
+
+			}catch(Exception e){
+				e.printStackTrace();
+				System.out.println("problemi alla riga i: "+ i);
+
+			}
+			System.out.println("inserisco "+i);
+			i++;
+		}
+
+	}
+
+	public void populateAlternativeTitles(String idToAsk,
+			JSONArray titlesAvailable) throws JSONException {
+		String queryTitles="INSERT INTO MovieAlternativeTitles (id_Movie, iso_3166, alternative_titles)";
+		Map<String,String> iso3166Map=new HashMap<>();
+		for(int j=0; j<titlesAvailable.length();j++){
+			JSONObject title = (JSONObject) titlesAvailable.get(j);
+			String escapedTitle = title.getString("title").replaceAll("'", "''");
+			String titles;
+			if(iso3166Map.containsKey(title.getString("iso_3166_1"))){
+				titles = iso3166Map.get(title.getString("iso_3166_1"));
+				titles+=("'"+escapedTitle+"',");
+			}else{titles="['"+escapedTitle+"',";}
+
+			iso3166Map.put(title.getString("iso_3166_1"), titles);
+		}
+		for(String iso:iso3166Map.keySet()){
+			String alternatives = iso3166Map.get(iso)+"]";
+			alternatives=alternatives.replaceAll(",]", "]");
+			String inQuery=queryTitles+" VALUES('"+idToAsk+"','"+iso+"',"+alternatives+")";
+			session.execute(inQuery);
+		}
+	}
+
+	public void populateTraslations(String idToAsk,
+			JSONArray translationAvailable) throws JSONException {
+		String queryTraslation="INSERT INTO MovieTranslations(id_Movie,translation_languages,translation_Json)";
+		StringBuilder languagesList= new StringBuilder();
+		StringBuilder languageType= new StringBuilder();
+
+		for(int j=0; j<translationAvailable.length();j++){	
+			JSONObject lng = (JSONObject) translationAvailable.get(j);
+			languagesList.append("'"+lng.getString("english_name")+"',");
+			languageType.append("{iso_3166:'"+lng.getString("iso_3166_1")+"',iso_639:'"+lng.getString("iso_639_1")+"',name:'"
+					+lng.getString("name")+"',english_name:'"+lng.getString("english_name")+"'},");
+		}
+
+		String jsonLanguages="["+languageType.toString()+"]";
+		String enNameList="["+languagesList+"]";
+		jsonLanguages=jsonLanguages.replaceAll(",]", "]");
+		enNameList=enNameList.replaceAll(",]", "]");
+
+		queryTraslation+=" VALUES('"+idToAsk+"',"+enNameList+","+jsonLanguages+")";
+		session.execute(queryTraslation);
+	}	
 
 	public void populateBestActor() {
 		LocalDate localDate = LocalDate.now();
