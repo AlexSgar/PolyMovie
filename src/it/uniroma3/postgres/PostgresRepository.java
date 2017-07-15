@@ -504,7 +504,7 @@ public class PostgresRepository {
 		String query = "select distinct a.id_actor, a.name, "
 				+ "a.gender, a.profile_path, "
 				+ "a.popularity,a.birthday  from credits c join moviecredits" 
-				+ " m on m.id_credit=c.id_credit join actors a on c.id_actor=a.id_actor where m.id_movie='"+id_movie+"'";
+				+ " m on m.id_credit=c.id_credit join actors a on c.id_actor=a.id_actor where m.id_movie='"+id_movie+"' order by a.popularity desc";
 		stmt = conn.createStatement();
 		ResultSet rs= stmt.executeQuery(query);
 		while (rs.next()) {
@@ -542,7 +542,7 @@ public class PostgresRepository {
 		Connection conn= this.getConnection(this.dbUrl);
 		Statement stmt = null;
 		String query = "select distinct  ts.* from tvshow ts join "
-				+ "tvroles tr on tr.id_serie=ts.id_serie where id_actor='"+id_actor+"'";
+				+ "tvroles tr on tr.id_serie=ts.id_serie where id_actor='"+id_actor+"' order by ts.popularity desc";
 		stmt = conn.createStatement();
 		ResultSet rs= stmt.executeQuery(query);
 		while (rs.next()) {

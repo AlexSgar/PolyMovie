@@ -41,7 +41,7 @@ public class MainController {
 
 	@RequestMapping(value="movie",method = RequestMethod.GET)
 	public String getMovies(Model model) throws SQLException, JSONException {
-		List<Movie> retrieveMovie = movieFacade.retrieveMovie();
+		List<Movie> retrieveMovie = movieFacade.retrieveMovies();
 		model.addAttribute("message", "film trovati: "+retrieveMovie.size());
 		model.addAttribute("movies",retrieveMovie);
 		if(retrieveMovie.size()==0){
@@ -96,7 +96,7 @@ public class MainController {
 
 	@RequestMapping(value="movie/{id}/related", method = RequestMethod.GET)
 	public String getMovieRelated(@PathVariable("id") String id_movie ,Model model) throws SQLException, JSONException {
-		List<Movie> retrieveMovie=movieFacade.getMovieRelated(id_movie);
+		List<Movie> retrieveMovie=movieFacade.retrieveMoviesRelated(id_movie);
 		model.addAttribute("movies",retrieveMovie);
 		if(retrieveMovie.size()==0)
 			return "not-found";

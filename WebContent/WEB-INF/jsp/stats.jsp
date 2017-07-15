@@ -108,15 +108,16 @@
 					</div>
 				</div>
 				<div class="list-group" style="padding-bottom: 20px;">
-					<a href="#" class="list-group-item active"
-						style="background: #2c3e50;">Movies info</a> <a href="#"
-						class="list-group-item">From TMDB we discovered that 17892
-						movies aren't linked to any trailer </a> <a href="#"
-						class="list-group-item">From TMDB we discovered that for 12727
-						movies we don't have any backdrops or Posters </a> <a href="#"
-						class="list-group-item active" style="background: #2c3e50;">Actors
-						info</a> <a href="#" class="list-group-item">From TMDB we
-						discovered that for 112510 actors we don't have any photo</a>
+					<p class="list-group-item active" style="background: #2c3e50;">Movies
+						info</p>
+					<p class="list-group-item">From TMDB we discovered that 17892
+						movies aren't linked to any trailer</p>
+					<p class="list-group-item"> From TMDB we discovered that for 12727 movies we don't have any
+						backdrops or Posters </p> 
+					<p class="list-group-item active"
+							style="background: #2c3e50;">Actors info</p> 
+					<p class="list-group-item">From TMDB we discovered that for
+							112510 actors we don't have any photo</p>
 				</div>
 			</div>
 			<div id="postgP">
@@ -167,18 +168,18 @@
 					</div>
 				</div>
 				<div class="list-group" style="padding-bottom: 20px;">
-					<a href="#" class="list-group-item active"
-						style="background: #2c3e50;">Actors info</a> <a href="#"
+					<p class="list-group-item active"
+						style="background: #2c3e50;">Actors info</p> <p
 						class="list-group-item">From TMDB we found 112575 actors
-						without a profile picture</a> <a href="#" class="list-group-item">From
-						TMDB we found 130961 actors with an unknown birthday</a> <a href="#"
+						without a profile picture</p> <p class="list-group-item">From
+						TMDB we found 130961 actors with an unknown birthday</p> <p
 						class="list-group-item active" style="background: #2c3e50;">TV
-						shows info</a> <a href="#" class="list-group-item">From TMDB we
-						found 12497 tv shows without a poster</a> <a href="#"
+						shows info</p> <p class="list-group-item">From TMDB we
+						found 12497 tv shows without a poster</p> <p
 						class="list-group-item">From TMDB we found 445 tv shows
-						without a valid number of total episodes</a> <a href="#"
+						without a valid number of total episodes</p> <p
 						class="list-group-item">From TMDB we discovered that 233239
-						roles are with the character-name-field empty</a>
+						roles are with the character-name-field empty</p>
 				</div>
 			</div>
 			<div id="neoP">

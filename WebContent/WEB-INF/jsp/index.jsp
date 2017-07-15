@@ -30,7 +30,7 @@
 		<div class="share mrl"
 			style="background-color: #ebebeb; position: relative; border-radius: 6px; padding-left: 20px; padding-right: 20px; padding-top: 10px">
 			<h2>Welcome to our PolyStore</h2>
-			<p>You can start surfing on it with the navbar</p>
+			<p>You can start surfing on it with the navbar or <a href="/PolyMovie/movie"> here</a></p>
 		</div>
 		<p align="center">
 			<img alt="polyMovie" style="max-width:900px;"

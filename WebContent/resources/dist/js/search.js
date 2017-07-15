@@ -12,7 +12,7 @@ window.onload = function() {
 	$("#search-button").click(function() {
 		var param=$("#navbarInput-01").val();
 		//console.log("/HelloWeb/movie/"+param);
-		window.location="/PlyMovie/search?search="+param;
+		window.location="/PolyMovie/search?search="+param;
 	});
 
 	$("#navbarInput-01").keypress(function(e) {
