@@ -27,17 +27,13 @@ public class CassandraRepository {
 	private Cluster cluster;
 	private  MovieAdapter mvAdapter;
 	private PeopleAdapter pplAdapter;
-	private FileReader input;
-	private BufferedReader lines ;
 
 
 	public CassandraRepository() throws FileNotFoundException {
 		mvAdapter = new MovieAdapter();
 		pplAdapter= new PeopleAdapter();
-		input = new FileReader("ml-latest/links_clear.csv");
-		lines = new BufferedReader(input);
 	}
-	
+
 	public void createSchema() {
 		try{session.execute("CREATE KEYSPACE movieDB WITH replication "
 				+ "= {'class':'SimpleStrategy', 'replication_factor':3};");}
@@ -68,7 +64,7 @@ public class CassandraRepository {
 			System.out.println("columnfamilies gia create");
 		}
 	}
-	
+
 	public void connect(String node) {
 		cluster = Cluster.builder().addContactPoint(node).build();
 		Metadata metadata = cluster.getMetadata();
@@ -90,6 +86,9 @@ public class CassandraRepository {
 		String currentLine="";
 		int i=0;
 		session.execute("use movieDB");
+
+		FileReader input = new FileReader("ml-latest/links_clear.csv");
+		BufferedReader lines = new BufferedReader(input);
 		
 		while((currentLine = lines.readLine())!=null) {
 
@@ -111,10 +110,13 @@ public class CassandraRepository {
 			System.out.println("inserisco "+i);
 			i++;
 		}
+		
+		input.close();
+		lines.close();
 
 	}
 
-	public void populateAlternativeTitles(String idToAsk,
+	private void populateAlternativeTitles(String idToAsk,
 			JSONArray titlesAvailable) throws JSONException {
 		String queryTitles="INSERT INTO MovieAlternativeTitles (id_Movie, iso_3166, alternative_titles)";
 		Map<String,String> iso3166Map=new HashMap<>();
@@ -137,7 +139,7 @@ public class CassandraRepository {
 		}
 	}
 
-	public void populateTraslations(String idToAsk,
+	private void populateTraslations(String idToAsk,
 			JSONArray translationAvailable) throws JSONException {
 		String queryTraslation="INSERT INTO MovieTranslations(id_Movie,translation_languages,translation_Json)";
 		StringBuilder languagesList= new StringBuilder();
@@ -163,6 +165,8 @@ public class CassandraRepository {
 		LocalDate localDate = LocalDate.now();
 		String todayDate = DateTimeFormatter.ofPattern("yyy/MM/dd").format(localDate);
 		session.execute("use movieDB");
+		
+		
 		try {
 			JSONArray popularActors = pplAdapter.getPopular();
 			String queryActor="INSERT INTO actordailyranking(timestamp,rank,id_actor,known_for_json,name,popularity_score)";
@@ -186,11 +190,6 @@ public class CassandraRepository {
 			e.printStackTrace();
 			System.out.println("errore con il json");
 		}
-
-
-
 	}
-
-
 
 }

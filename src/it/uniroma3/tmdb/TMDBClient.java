@@ -8,7 +8,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public class TMDBClient {
-	private String apiKey="?api_key=044d07c2be73d3ebc84afe8ff751e2f2";
+	private String apiKey="?api_key="; //insert API key
 	private  String baseUrl = "https://api.themoviedb.org/3";
 
 	public TMDBClient(){}
@@ -69,7 +69,6 @@ public class TMDBClient {
 			is.close();
 		}
 	}
-	
 	
 	
 	public JSONArray readJsonArrayFromUrl(String url) throws IOException, JSONException {
