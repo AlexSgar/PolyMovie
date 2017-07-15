@@ -3,7 +3,6 @@ package it.uniroma3.postgres;
 import it.uniroma3.adapter.MovieAdapter;
 import it.uniroma3.adapter.PeopleAdapter;
 import it.uniroma3.adapter.TVAdapter;
-import it.uniroma3.model.Movie;
 import it.uniroma3.utility.Pair;
 import it.uniroma3.model.*;
 
@@ -24,9 +23,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
-
-import javax.print.DocFlavor;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -359,7 +355,6 @@ public class PostgresRepository {
 
 		for(String idShow: showsRetrieved){
 
-			if(true){
 
 				JSONObject tvJson = tvAdapter.getDetails(idShow);
 				try{
@@ -384,8 +379,6 @@ public class PostgresRepository {
 					System.out.println("percentuale completamento: "+(new Double(i)/numberOfShows)*100+" %");
 					ps5.executeBatch();
 					conn.commit();}
-				i++;
-			}else
 				i++;
 		}
 		ps5.executeBatch();
@@ -460,7 +453,7 @@ public class PostgresRepository {
 		act.setPopularity(""+this.round(new Double(popularity), 2));
 		String path = rs.getString("profile_path");
 		if(path.equals("null")){
-			act.setPhoto("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRIjBLiqDUUSRDCtHnCMiAuaa1X54cT_Qt7P2pY32gwaoK_ix7R");
+			act.setPhoto("http://i64.tinypic.com/2mx341i.png");
 		}else
 			act.setPhoto("https://image.tmdb.org/t/p/w500"+path);
 		String birth=rs.getString("birthday");
@@ -591,7 +584,7 @@ public class PostgresRepository {
 		tv.setPopularity(""+this.round(new Double(popularity), 2));
 		String path = rs.getString("poster_path");
 		if(path.equals("null")){
-			tv.setPoster("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRIjBLiqDUUSRDCtHnCMiAuaa1X54cT_Qt7P2pY32gwaoK_ix7R");
+			tv.setPoster("http://i64.tinypic.com/2mx341i.png");
 		}else
 			tv.setPoster("https://image.tmdb.org/t/p/w500"+path);
 		tv.setStatus(rs.getString("status"));

@@ -9,7 +9,7 @@ public class Neo4jMain {
 	public static void main(String[] args) throws FileNotFoundException, IOException{
 		Neo4JRepository neo4j= new Neo4JRepository();
 		//neo4j.populateDB();
-		neo4j.retrieveMovieRelated("675").forEach(e->System.out.println(e));;
+		//neo4j.populateDB();
 		
 	}
 	

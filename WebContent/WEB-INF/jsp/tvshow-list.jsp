@@ -19,6 +19,8 @@
 	src="http://code.jquery.com/jquery-1.10.0.min.js"></script>
 <script type="text/javascript"
 	src="<c:url value="/resources/dist/js/flat-ui.min.js"/>"></script></head>
+	<script type="text/javascript"
+	src="<c:url value="/resources/dist/js/search.js"/>"></script>
 
 <body>
 <%@ include file="static.html"%>

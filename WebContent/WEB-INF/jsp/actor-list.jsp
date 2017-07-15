@@ -19,6 +19,8 @@
 	src="http://code.jquery.com/jquery-1.10.0.min.js"></script>
 <script type="text/javascript"
 	src="<c:url value="/resources/dist/js/flat-ui.min.js"/>"></script>
+<script type="text/javascript"
+	src="<c:url value="/resources/dist/js/search.js"/>"></script>
 </head>
 
 <body>
@@ -62,8 +64,7 @@
 									<a id="movie_321612" class="btn  btn-circle btn-inverse"
 										href="<c:url value="/actor/${act.id}/tvshows"/>"
 										title="${movie.title}" alt="${movie.title}">Tv Roles <span
-										class="fui-play"></span></a> 
-										<a class="btn btn-circle btn-inverse"
+										class="fui-play"></span></a> <a class="btn btn-circle btn-inverse"
 										href="<c:url value="/actor/${act.id}/movies"/>"
 										title="trailer" alt="${movie.title}">Movies <span
 										class="fui-video"></span>

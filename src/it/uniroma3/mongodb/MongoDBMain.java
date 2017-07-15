@@ -2,8 +2,6 @@ package it.uniroma3.mongodb;
 
 import java.io.IOException;
 
-import org.bson.Document;
-
 public class MongoDBMain {
 
 	public MongoDBMain() {
@@ -18,7 +16,7 @@ public class MongoDBMain {
 		//mongoDBAdapter.deleteCollection("movies");
 		//mongoDBAdapter.deleteCollection("movieKeywords");
 		//mongoDBAdapter.populateMoviesAndMoviesKeywords();
-		//mongoDBAdapter.printElements();
+		mongoDBAdapter.printElements();
 
 	}
 

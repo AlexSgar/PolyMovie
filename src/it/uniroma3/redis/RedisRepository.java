@@ -3,17 +3,12 @@ package it.uniroma3.redis;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
@@ -38,9 +33,6 @@ public class RedisRepository {
 		this.peopleAdapter = new PeopleAdapter();
 		this.jedis = new Jedis();//use default for connection
 	}
-
-
-
 
 
 	public List<String> getMoviePosters(String id_movie){
@@ -371,11 +363,11 @@ public class RedisRepository {
 
 
 
-
+/*
 	private void deleteDatabase(){
 		this.jedis.flushDB();
 	}
-
+*/
 
 
 

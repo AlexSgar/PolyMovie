@@ -19,13 +19,14 @@
 	src="http://code.jquery.com/jquery-1.10.0.min.js"></script>
 <script type="text/javascript"
 	src="<c:url value="/resources/dist/js/flat-ui.min.js"/>"></script>
+<script type="text/javascript"
+	src="<c:url value="/resources/dist/js/search.js"/>"></script>
 </head>
 
 <body>
 	<%@ include file="static.html"%>
 
 
-	<div>
 		<div class="container"
 			style="margin: 0 auto; margin-top: 50px; width: 1000px;">
 			<div class="row">
@@ -39,10 +40,9 @@
 						</div>
 						<div class="info" style="width: 80%;">
 							<p class="flex">
-								<a id="movie_${movie.id}" class="title result"
-									href="#" title="${movie.title}"
-									alt="${movie.title}"> ${movie.title} </a> <span
-									class="vote_average">${movie.voteAvg}<span
+								<a id="movie_${movie.id}" class="title result" href="#"
+									title="${movie.title}" alt="${movie.title}"> ${movie.title}
+								</a> <span class="vote_average">${movie.voteAvg}<span
 									id="rating_54c7e0bdc3a36874bf0046fb"
 									class="glyphicons glyphicons-star x1 rating movie"></span></span>
 							</p>
@@ -58,7 +58,8 @@
 									class="fui-user"></span></a> <a class="btn btn-circle btn-inverse"
 									href="${movie.trailer}" title="trailer" alt="${movie.title}">Trailer
 									<span class="fui-youtube"></span>
-								</a><a class="btn btn-circle btn-inverse" href="<c:url value="/movie/${movie.id}/related"/>"
+								</a><a class="btn btn-circle btn-inverse"
+									href="<c:url value="/movie/${movie.id}/related"/>"
 									title="trailer" alt="${movie.title}">Related <span
 									class="fui-video"></span>
 								</a>
@@ -69,14 +70,13 @@
 			</div>
 		</div>
 </body>
-
 <div class="bootstrap-tagsinput" style="margin: 0 auto; width: 970px;">
 	<c:forEach items="${movie.keywordTag}" var="tag">
 		<span class="tag label label-info">${tag}</span>
 	</c:forEach>
 </div>
 <div class="container" style="margin-top: 20px;">
-	<h6 class="demo-panel-title" style="color: #1abc9c" >Reviews</h6>
+	<h6 class="demo-panel-title" style="color: #1abc9c">Reviews</h6>
 	<div class="panel-group" id="accordion">
 		<c:forEach items="${movie.review}" var="rev">
 

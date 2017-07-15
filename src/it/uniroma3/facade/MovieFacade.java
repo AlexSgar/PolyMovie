@@ -115,7 +115,7 @@ public class MovieFacade {
 		List<Movie> retrievedM=new LinkedList<Movie>();
 		for(String idMovie: movieList){
 			Document movie = mongoRepo.getMovie(new Integer(idMovie));
-			if(!movie.isEmpty()){
+			if(movie!=null&&!movie.isEmpty()){
 				JSONObject cur=new JSONObject(movie);
 				Movie m= new Movie(cur);
 				List<String> moviePosters = redisRepo.getMoviePosters(m.getId());

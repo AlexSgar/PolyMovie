@@ -38,7 +38,7 @@ public class Movie {
 		this.setKeywords("movie");
 		this.popularity=cur.getString("popularity");
 		this.setVoteAvg(cur.getString("vote_average"));
-		this.poster="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRIjBLiqDUUSRDCtHnCMiAuaa1X54cT_Qt7P2pY32gwaoK_ix7R";
+		this.poster="http://i64.tinypic.com/2mx341i.png";
 	}
 
 	public String getId() {

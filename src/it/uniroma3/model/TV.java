@@ -1,8 +1,6 @@
 package it.uniroma3.model;
 
 import org.json.JSONException;
-import org.json.JSONObject;
-
 public class TV {
 	private String id;
 	private String title;
@@ -27,7 +25,7 @@ public class TV {
 			this.poster=poster;
 		}
 		else
-			this.poster="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRIjBLiqDUUSRDCtHnCMiAuaa1X54cT_Qt7P2pY32gwaoK_ix7R";
+			this.poster="http://i64.tinypic.com/2mx341i.png";
 	}
 
 

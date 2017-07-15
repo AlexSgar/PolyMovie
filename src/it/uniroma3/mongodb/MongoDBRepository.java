@@ -50,7 +50,9 @@ public class MongoDBRepository{
 	}
 	
 	public Iterable<Document> getMovieByTitle(String title){
-		String pattern = "."+title+".";
+		if(title.equals("")||title.equals(" ")||title.contains("*"))
+			return new LinkedList<Document>();
+		String pattern = ".*"+title+".*";
 		return this.mongoDatabase.getCollection("movies").find(regex("title",pattern,"i"));
 	}
 	
@@ -69,11 +71,9 @@ public class MongoDBRepository{
 	}
 
 
-	private void printElements(){
+	void printElements(){
 		MongoCollection<Document> movies = this.mongoDatabase.getCollection("movies");
-
 		System.out.println(movies.count());
-
 		MongoCursor<Document> cursor = movies.find().iterator();
 
 		try{
