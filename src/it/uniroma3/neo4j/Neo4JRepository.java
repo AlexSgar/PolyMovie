@@ -31,7 +31,7 @@ public class Neo4JRepository {
 
 	public void populateDB() throws FileNotFoundException, IOException {
 		MovieAdapter mvAd= new MovieAdapter();
-		FileReader input = new FileReader("ml-latest/links.csv");
+		FileReader input = new FileReader("ml-latest/links_clear.csv");
 		BufferedReader lines = new BufferedReader(input);
 
 		String currentLine= null;
