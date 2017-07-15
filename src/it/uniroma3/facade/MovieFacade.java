@@ -31,6 +31,25 @@ public class MovieFacade {
 		this.redisRepo= new RedisRepository();
 		this.neo4Repo= new Neo4JRepository();
 	}
+	
+	public Movie retrieveMovie(String id_movie) throws JSONException {
+		Document movie = mongoRepo.getMovie(new Integer(id_movie));
+		Movie m=new  Movie(new JSONObject(movie.toJson()));
+		List<String> moviePosters = redisRepo.getMoviePosters(m.getId());
+		List<String> movieTrailers = redisRepo.getMovieTrailer(m.getId());
+		if(movieTrailers.size()!=0){
+			m.setTrailer(movieTrailers.get(0));	
+		}
+		setKeywords(m);
+		if(moviePosters!=null&&moviePosters.size()!=0){
+			m.setPoster(moviePosters.get(0));
+		}
+		List<Review> retrieveReview = neo4Repo.retrieveReview(id_movie);
+		if(retrieveReview!=null){
+			m.setReview(retrieveReview);
+		}
+		return m;
+	}
 
 	public List<Movie> retrieveMovies() throws SQLException, JSONException {
 		List<Movie> retrievedM=new LinkedList<Movie>();
@@ -69,13 +88,6 @@ public class MovieFacade {
 	}
 
 
-
-	public static void main(String[] arg) throws SQLException, JSONException{
-		MovieFacade mv= new MovieFacade();
-		mv.retrieveMovies();
-
-	}
-
 	public List<Movie> retrieveMovies4Actor(String id_actor) throws SQLException, JSONException {
 		
 		List<String> movieList= postgres.retrieveMovies4Actor(id_actor);
@@ -97,24 +109,6 @@ public class MovieFacade {
 		return orderMoviesListByPopularity(retrievedM);
 	}
 
-	public Movie getMovie(String id_movie) throws JSONException {
-		Document movie = mongoRepo.getMovie(new Integer(id_movie));
-		Movie m=new  Movie(new JSONObject(movie.toJson()));
-		List<String> moviePosters = redisRepo.getMoviePosters(m.getId());
-		List<String> movieTrailers = redisRepo.getMovieTrailer(m.getId());
-		if(movieTrailers.size()!=0){
-			m.setTrailer(movieTrailers.get(0));	
-		}
-		setKeywords(m);
-		if(moviePosters!=null&&moviePosters.size()!=0){
-			m.setPoster(moviePosters.get(0));
-		}
-		List<Review> retrieveReview = neo4Repo.retrieveReview(id_movie);
-		if(retrieveReview!=null){
-			m.setReview(retrieveReview);
-		}
-		return m;
-	}
 
 	public List<Movie> retrieveMoviesRelated(String id_movie) throws JSONException {
 		List<String> movieList= neo4Repo.retrieveMovieRelated(id_movie);

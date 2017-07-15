@@ -53,7 +53,8 @@ public class MongoDBRepository{
 		if(title.equals("")||title.equals(" ")||title.contains("*"))
 			return new LinkedList<Document>();
 		String pattern = ".*"+title+".*";
-		return this.mongoDatabase.getCollection("movies").find(regex("title",pattern,"i"));
+		return this.mongoDatabase.getCollection("movies").find(regex("title",pattern,"i"))
+				.sort(new BasicDBObject("popularity",-1));
 	}
 	
 	

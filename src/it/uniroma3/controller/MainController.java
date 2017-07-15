@@ -89,7 +89,7 @@ public class MainController {
 
 	@RequestMapping(value="movie/{id}", method = RequestMethod.GET)
 	public String getMovieInfo(@PathVariable("id") String id_movie ,Model model) throws SQLException, JSONException {
-		Movie m=movieFacade.getMovie(id_movie);
+		Movie m=movieFacade.retrieveMovie(id_movie);
 		model.addAttribute("movie",m);
 		return  "movie-info";
 	}
