@@ -32,50 +32,64 @@ public class MovieFacade {
 		this.neo4Repo= new Neo4JRepository();
 	}
 	
-	public Movie retrieveMovie(String id_movie) throws JSONException {
+	public Movie retrieveMovie(String id_movie){
 		Document movie = mongoRepo.getMovie(new Integer(id_movie));
-		Movie m=new  Movie(new JSONObject(movie.toJson()));
-		List<String> moviePosters = redisRepo.getMoviePosters(m.getId());
-		List<String> movieTrailers = redisRepo.getMovieTrailer(m.getId());
-		if(movieTrailers.size()!=0){
-			m.setTrailer(movieTrailers.get(0));	
+		Movie m = new Movie();
+		try {
+			m = new  Movie(new JSONObject(movie.toJson()));
+			List<String> moviePosters = redisRepo.getMoviePosters(m.getId());
+			List<String> movieTrailers = redisRepo.getMovieTrailer(m.getId());
+			if(movieTrailers.size()!=0){
+				m.setTrailer(movieTrailers.get(0));	
+			}
+			setKeywords(m);
+			
+			if(moviePosters!=null&&moviePosters.size()!=0){
+				m.setPoster(moviePosters.get(0));
+			}
+			
+			List<Review> retrieveReview = neo4Repo.retrieveReview(id_movie);
+			if(retrieveReview!=null){
+				m.setReview(retrieveReview);
+			}
+		} catch (JSONException e) {
+			e.printStackTrace();
 		}
-		setKeywords(m);
-		if(moviePosters!=null&&moviePosters.size()!=0){
-			m.setPoster(moviePosters.get(0));
-		}
-		List<Review> retrieveReview = neo4Repo.retrieveReview(id_movie);
-		if(retrieveReview!=null){
-			m.setReview(retrieveReview);
-		}
+		
 		return m;
 	}
 
-	public List<Movie> retrieveMovies() throws SQLException, JSONException {
+	public List<Movie> retrieveMovies() throws SQLException{
 		List<Movie> retrievedM=new LinkedList<Movie>();
 		Iterable<Document> movies = this.mongoRepo.getMovies("popularity");
 		//Iterable<Document> movies = this.mongoRepo.getMovies("release_date");
 
 		for(Document d: movies){
-			JSONObject cur=new JSONObject(d.toJson());
-			Movie m= new Movie(cur);
-			List<String> moviePosters = redisRepo.getMoviePosters(m.getId());
-			setKeywords(m);
-			if(moviePosters!=null&&moviePosters.size()!=0){
-				m.setPoster(moviePosters.get(0));
+			JSONObject cur;
+			try {
+				cur = new JSONObject(d.toJson());
+				Movie m= new Movie(cur);
+				List<String> moviePosters = redisRepo.getMoviePosters(m.getId());
+				setKeywords(m);
+				if(moviePosters!=null&&moviePosters.size()!=0){
+					m.setPoster(moviePosters.get(0));
+				}
+				retrievedM.add(m);
+			} catch (JSONException e) {
+				e.printStackTrace();
 			}
-			retrievedM.add(m);
 		}
 		return retrievedM;
 	}
 
-	public void setKeywords(Movie m) throws JSONException {
+	private void setKeywords(Movie m) throws JSONException {
 		Document movieKeywords = mongoRepo.getMovieKeywords(new Integer(m.getId()));
 		JSONObject jsonKeywords = new JSONObject(movieKeywords.toJson());
 		JSONArray keyWordsArray = jsonKeywords.getJSONArray("keywords");
 		String toSetKeywords="";
 		int size = keyWordsArray.length();
 		System.out.println(size);
+		
 		for(int i=0; i<size; i++){
 			String keyword =((JSONObject) keyWordsArray.get(i)).getString("name");
 			if(i!=(size-1)){
@@ -88,22 +102,28 @@ public class MovieFacade {
 	}
 
 
-	public List<Movie> retrieveMovies4Actor(String id_actor) throws SQLException, JSONException {
+	public List<Movie> retrieveMovies4Actor(String id_actor) throws SQLException {
 		
 		List<String> movieList= postgres.retrieveMovies4Actor(id_actor);
 		List<Movie> retrievedM=new LinkedList<Movie>();
 		Document movie = null;
 		JSONObject cur = null;
+		
 		for(String idMovie: movieList){
 			movie = mongoRepo.getMovie(new Integer(idMovie));
 			cur=new JSONObject(movie);
-			Movie m= new Movie(cur);
-			List<String> moviePosters = redisRepo.getMoviePosters(m.getId());
-			setKeywords(m);
-			if(moviePosters!=null&&moviePosters.size()!=0){
-				m.setPoster(moviePosters.get(0));
+			Movie m;
+			try {
+				m = new Movie(cur);
+				List<String> moviePosters = redisRepo.getMoviePosters(m.getId());
+				setKeywords(m);
+				if(moviePosters!=null&&moviePosters.size()!=0){
+					m.setPoster(moviePosters.get(0));
+				}
+				retrievedM.add(m);
+			} catch (JSONException e) {
+				e.printStackTrace();
 			}
-			retrievedM.add(m);
 		}
 		
 		return orderMoviesListByPopularity(retrievedM);
@@ -113,6 +133,7 @@ public class MovieFacade {
 	public List<Movie> retrieveMoviesRelated(String id_movie) throws JSONException {
 		List<String> movieList= neo4Repo.retrieveMovieRelated(id_movie);
 		List<Movie> retrievedM=new LinkedList<Movie>();
+		
 		for(String idMovie: movieList){
 			Document movie = mongoRepo.getMovie(new Integer(idMovie));
 			if(movie!=null&&!movie.isEmpty()){
